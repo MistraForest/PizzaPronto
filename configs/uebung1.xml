@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+	<feature automatic="selected" name="PizzaPronto"/>
+	<feature manual="selected" name="Uebung1"/>
+	<feature automatic="unselected" name="Uebung2"/>
+	<feature automatic="unselected" name="Ue2_chefVO"/>
+	<feature automatic="unselected" name="Ue2_PizzaVO"/>
+	<feature automatic="unselected" name="Ue2_CustomerVO"/>
+</configuration>
