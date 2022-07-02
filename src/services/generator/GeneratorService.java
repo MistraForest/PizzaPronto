@@ -39,8 +39,6 @@ public class GeneratorService {
 	private List<String> fieldNames = new ArrayList<String>();
 	List<String> importClassList = new ArrayList<String>();
 	Map<String, Object> dataModel = new HashMap<String, Object>();
-	
-
 
 	private GeneratorService() {
 
@@ -76,18 +74,16 @@ public class GeneratorService {
 	}
 
 	public GeneratorService buildData(ChefVO chef) {
-
 		
 		Field[] declaredFields = chef.getClass().getDeclaredFields();
-		Method[] declaredMethods = chef.getClass().getDeclaredMethods();
-
 		String[] fieldArray = new String[declaredFields.length];
-		String[] methodArray = new String[declaredMethods.length];
-
-
-		handleClassAttributtes(declaredFields, fieldArray);
 		
 		Constructor<?>[] declaredConstructors = chef.getClass().getConstructors();
+		
+		Method[] declaredMethods = chef.getClass().getDeclaredMethods();
+		String[] methodArray = new String[declaredMethods.length];
+
+		handleClassAttributtes(declaredFields, fieldArray);
 		
 		List<String> constructors = handleConstructors(declaredConstructors);
 	
