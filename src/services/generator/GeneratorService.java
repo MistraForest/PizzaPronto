@@ -12,13 +12,18 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import Ue1.ChefVO;
+import Ue1.CustomerVO;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
+import root.Pronto;
+import services.ClassConfiguration;
 
 
 public class GeneratorService {
@@ -33,12 +38,15 @@ public class GeneratorService {
 	private final String TAB = "\t";
 	private final String NEW_LINE = "\n";
 	private final String GENERATED = "generatedCode/";
+	private final String TEMPLATE_FILE = "pizzaPronto.ftl";
 	
 	private Template template;
+	private List<Map<String, Object>> configModel = new ArrayList<Map<String,Object>>();
+
 	
 	private List<String> fieldNames = new ArrayList<String>();
 	List<String> importClassList = new ArrayList<String>();
-	Map<String, Object> dataModel = new HashMap<String, Object>();
+	
 
 	private GeneratorService() {
 
@@ -46,22 +54,21 @@ public class GeneratorService {
 	}
 
 	private void init() {
-
+		
 		Configuration configuration = new Configuration(new Version(2, 3, 31));
-
-		/*
-		 * configuration.setIncompatibleImprovements(new Version(2, 3, 31));
-		 * configuration.setDefaultEncoding("UTF-8");
-		 * configuration.setLocale(Locale.GERMAN);
-		 * configuration.setTemplateExceptionHandler(TemplateExceptionHandler.
-		 * RETHROW_HANDLER);
-		 */
+		
+		configuration.setIncompatibleImprovements(new Version(2, 3, 31));
+		configuration.setDefaultEncoding("UTF-8");
+		configuration.setLocale(Locale.GERMAN);
+		configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+		 
 		FileTemplateLoader ftl1 = null;
 
 		try {
 			ftl1 = new FileTemplateLoader(new File("src/templates"));
 			configuration.setTemplateLoader(ftl1);
-			template = configuration.getTemplate("chefVO.ftl");
+			
+			template = configuration.getTemplate(TEMPLATE_FILE);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,28 +80,34 @@ public class GeneratorService {
 		return engine;
 	}
 
-	public GeneratorService buildData(ChefVO chef) {
+	public GeneratorService buildData(ClassConfiguration superClass) {
 		
-		Field[] declaredFields = chef.getClass().getDeclaredFields();
-		String[] fieldArray = new String[declaredFields.length];
-		
-		Constructor<?>[] declaredConstructors = chef.getClass().getConstructors();
-		
-		Method[] declaredMethods = chef.getClass().getDeclaredMethods();
-		String[] methodArray = new String[declaredMethods.length];
+		superClass.getClazz().forEach(actuelClass ->{
+			Map<String, Object> dataModel = new HashMap<String, Object>();
+			Field[] declaredFields = actuelClass.getClass().getDeclaredFields();
+			String[] fieldArray = new String[declaredFields.length];
+			
+			Constructor<?>[] declaredConstructors = actuelClass.getClass().getConstructors();
+			
+			Method[] declaredMethods = actuelClass.getClass().getDeclaredMethods();
+			String[] methodArray = new String[declaredMethods.length];
 
-		handleClassAttributtes(declaredFields, fieldArray);
+			handleClassAttributtes(declaredFields, fieldArray);
+			
+			List<String> constructors = handleConstructors(declaredConstructors);
 		
-		List<String> constructors = handleConstructors(declaredConstructors);
-	
-		handleClassMethods(declaredMethods, methodArray);
+			handleClassMethods(declaredMethods, methodArray);
 
-		dataModel.put("package", chef.getClass().getPackage()+";");
-		dataModel.put("className", chef.getClass().getSimpleName());
-		dataModel.put("imports", importClassList);
-		dataModel.put("properties", fieldArray);
-		dataModel.put("constructors", constructors);
-		dataModel.put("methods", methodArray);
+			dataModel.put("package", actuelClass.getClass().getPackage()+";");
+			dataModel.put("className", actuelClass.getClass().getSimpleName());
+			dataModel.put("imports", importClassList);
+			dataModel.put("properties", fieldArray);
+			dataModel.put("constructors", constructors);
+			dataModel.put("methods", methodArray);
+			
+			configModel.add(dataModel);
+			
+		});
 
 		return engine;
 	}
@@ -105,9 +118,11 @@ public class GeneratorService {
 		List<String> constructors = new ArrayList<>();
 		
 		for (Constructor<?> constructor : declaredConstructors) {
+			
 			int parameterCount = constructor.getParameterCount();
 			String modifier = Modifier.toString(constructor.getModifiers());
 			String type = constructor.getName();
+			
 			if(parameterCount == 0) { // TODO Bessere Lösung
 				
 				buffer.append(modifier)
@@ -123,12 +138,11 @@ public class GeneratorService {
 				constructors.add(buffer.toString());
 			}
 			
-			Parameter[] parameters = constructor.getParameters();
 			buffer.append(modifier)
 					.append(SPACE_1)
 					.append(extractType(type))
 					.append(PARANTHESIS_OPEN);
-			System.out.println(constructor.getGenericParameterTypes().length);
+			//System.out.println(constructor.getGenericParameterTypes().length);
 			
 			buffer.append(PARANTHESIS_CLOSE)
 					.append(CURLY_BRACKET_OPEN)
@@ -141,6 +155,7 @@ public class GeneratorService {
 	}
 
 	private void handleClassMethods(Method[] declaredMethods, String[] methodArray) {
+		
 		String classToImport;
 		for (int i = 0; i < methodArray.length; i++) {
 
@@ -193,8 +208,10 @@ public class GeneratorService {
 
 		String classToImport;
 		for (int i = 0; i < fieldArray.length; i++) {
+			
 			StringBuffer member = new StringBuffer();
 			String type = declaredFields[i].getGenericType().getTypeName();
+			
 			member.append(Modifier.toString(declaredFields[i].getModifiers()))
 					.append(SPACE_1)
 					.append(extractType(type))
@@ -242,24 +259,25 @@ public class GeneratorService {
 		Writer file=null;
 
 		try {
-			/*
-			 * Set<Entry<String,Object>> iterator = dataModel.entrySet();
-			 * iterator.forEach(pair->{ System.out.println("Key: "+ pair.getKey()+
-			 * " Value: "+pair.getValue()); });
-			 */
+			
+			for (Map<String, Object> model : configModel) {
+				
+				String packageName = model.get("package").toString();
+				String className = model.get("className").toString();
+				
+				packageName = packageName.replace(";", File.separator);
 
-			String packageName = dataModel.get("package").toString();
-			packageName = packageName.replace(";", File.separator);
+				packageName = packageName.replace("package ", "");
+				packageName = GENERATED+packageName;
 
-			packageName = packageName.replace("package ", "");
-			packageName = GENERATED+packageName;
+				new File(packageName).mkdirs();
+				file = new FileWriter (new File(packageName+className +".java"));
 
-			new File(packageName).mkdirs();
-			file = new FileWriter (new File(packageName+"Chef.java"));
-
-			template.process(dataModel, file);
-			file.flush();
-			System.out.println("Success");
+				template.process(model, file);
+				file.flush();
+			}
+			
+			System.out.println("Generation Success");
 
 		}catch (Exception e) {
 		// TODO Auto-generated catch block
@@ -278,4 +296,5 @@ public class GeneratorService {
 
 	}
 
+	
 }
