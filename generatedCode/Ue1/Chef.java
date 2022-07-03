@@ -9,16 +9,11 @@ public class ChefVO {
     private String firstName;
     private Color colorApron;
 	
+    public ChefVO(){
+	}public ChefVO(){
+	}
+	
     public String toString(){
-	}
-
-    public void setLastName(String lastName){
-	}
-
-    public void setColorApron(Color colorApron){
-	}
-
-    public String getLastName(){
 	}
 
     public Color getColorApron(){
@@ -28,6 +23,15 @@ public class ChefVO {
 	}
 
     public String getFirstName(){
+	}
+
+    public String getLastName(){
+	}
+
+    public void setLastName(String lastName){
+	}
+
+    public void setColorApron(Color colorApron){
 	}
 
 
