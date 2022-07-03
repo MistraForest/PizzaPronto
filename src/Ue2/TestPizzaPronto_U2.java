@@ -3,9 +3,13 @@ package Ue2;
 import java.awt.Color;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import Ue1.ChefVO;
 import Ue1.PizzaVO;
+import root.Pronto;
+import services.ClassConfiguration;
 import services.generator.GeneratorService;
 import Ue1.CustomerVO;
 
@@ -36,8 +40,16 @@ public class TestPizzaPronto_U2 {
 		System.out.println(customer);
 		System.out.println(pizza);
 		
+		List<Object> availableClasses = new ArrayList<>();
+		availableClasses.add(pizza);
+		availableClasses.add(customer);
+		availableClasses.add(chef);
+		
+		ClassConfiguration classConfiguration = new ClassConfiguration(availableClasses);
+		//classConfiguration.setaClass(availableClasses);
+		
 		GeneratorService.getGenerator()
-						.buildData(chef)
+						.buildData(classConfiguration)
 						.writeFile();
 	}
 	

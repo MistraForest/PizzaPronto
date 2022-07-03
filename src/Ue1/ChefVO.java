@@ -3,7 +3,7 @@ package Ue1;
 
 import java.awt.Color;
 
-public class ChefVO {
+public class ChefVO{
 	
 	private String lastName;
 	private String firstName;
@@ -42,6 +42,5 @@ public class ChefVO {
 	public void setColorApron(Color colorApron) {
 		this.colorApron = colorApron;
 	}
-	
 	
 }
