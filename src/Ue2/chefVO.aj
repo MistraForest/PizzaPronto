@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,58 +29,63 @@ public aspect chefVO {
 
 	}
 	
-	//Verbeserung Alle attribute zur Laufzeit
+	//toString to be injected at runtime in the class ChefVO
 	public String ChefVO.toString (){
+		
 		Method[] getters = chef.getClass().getDeclaredMethods();
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Chef: {");
+		
 		for (Method method : getters) {
+			
 			try {
-				buffer.append(isGetter(method)?""+method.invoke(chef)+", ":"");
+				buffer.append(
+						isGetter(method) ? retrieveFieldName4ToString(method) + ": " + executeTheGetter(method) + ", " : ""
+						);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		buffer.deleteCharAt(buffer.lastIndexOf(","));
+		buffer.deleteCharAt(buffer.lastIndexOf(", "));
 		buffer.append("}");
 		return buffer.toString();
 	
 	
 	}
 
-	private static void extracted(StringBuffer buffer, Method action) {
-		String methodName = action.getName();
-		if(methodName.startsWith("get")) {
-			buffer.append(methodName+" ");
-		}
+	private static Object executeTheGetter(Method method) throws IllegalAccessException, InvocationTargetException {
+		return method.invoke(chef);
+	}
+
+	private static String retrieveFieldName4ToString(Method method) {
+		return method.getName().replaceFirst("get", "");
 	}
 	
-	private static String firstToUpperCase(String name) {
-		return name.substring(0, 1).toUpperCase() + name.substring(1);
-	}
+
 	
-	public static void retrieveAndExecuteBeanGetterMethods(Object bean) throws IntrospectionException {
+	private static List<String> retrieveGetterMethods(Object bean) throws IntrospectionException {
 	    List<PropertyDescriptor> beanGettersList = Arrays.asList(
 	            Introspector.getBeanInfo(bean.getClass(), Object.class)
 	                    .getPropertyDescriptors());
-
+	    List<String> names = new ArrayList<>();
 	    beanGettersList.stream()
 	            .filter(pd -> Objects.nonNull(pd.getReadMethod()))
 	            .collect(Collectors.toMap(PropertyDescriptor::getName,
 	                    pd -> {
 	                        try {
 	                        	System.out.println(isGetter(pd.getReadMethod()));
-	                        	
+	                        	names.add(pd.getReadMethod().getName());
 	                            return pd.getReadMethod().getName();
 	                        } catch (Exception e) {
-	                            return null;
+	                            return "Error when retrieving "+ pd.getReadMethod();
 	                        }
 	                    }));
+		return names;
 
 	}
 	
-	public static boolean isGetter(Method method) {
+	private static boolean isGetter(Method method) {
 		   if (Modifier.isPublic(method.getModifiers()) &&
 		      method.getParameterTypes().length == 0) {
 		         if (method.getName().matches("^get[A-Z].*") &&
@@ -92,7 +98,7 @@ public aspect chefVO {
 		   return false;
 		}
 	
-	public static boolean isSetter(Method method) {
+	private static boolean isSetter(Method method) {
 		   return Modifier.isPublic(method.getModifiers()) &&
 		      method.getReturnType().equals(void.class) &&
 		         method.getParameterTypes().length == 1 &&
