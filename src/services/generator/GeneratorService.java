@@ -45,11 +45,10 @@ public class GeneratorService {
 
 	
 	private List<String> fieldNames = new ArrayList<String>();
-	List<String> importClassList = new ArrayList<String>();
+	private List<String> importClassList = new ArrayList<String>();
 	
 
 	private GeneratorService() {
-
 		init();
 	}
 
@@ -142,14 +141,12 @@ public class GeneratorService {
 					.append(SPACE_1)
 					.append(extractType(type))
 					.append(PARANTHESIS_OPEN);
-			//System.out.println(constructor.getGenericParameterTypes().length);
 			
 			buffer.append(PARANTHESIS_CLOSE)
 					.append(CURLY_BRACKET_OPEN)
 					.append(NEW_LINE)
 					.append(TAB)
-					.append(CURLY_BRACKET_CLOSE)
-					;
+					.append(CURLY_BRACKET_CLOSE);
 		}
 		return constructors;
 	}
