@@ -1,4 +1,4 @@
-${package}
+${package};
 
 <#list imports as import>
 import ${import};
@@ -17,12 +17,23 @@ public class ${className} {
 	<#list methods as method>
     ${method}
 	</#list>
-	<#--
-		
-	${Properties}
-	 public ${return} ${methodname}(${params}){
+	
+	<#--others methods
+	${modifier} ${return} ${methodname}(${params}){
    		${body}
-   		return ${val} 
+   		return ${val}
+	}
+	
+	<#--getters
+	${get_modifier} ${get_returnType} ${getter}(){
+   		return ${val}
+	}
+	
+	<#--setters
+	${set_modifier} ${set_returnType} ${setter}(${params}){
+   		this.${propertie} = ${params};
+   		return ${val}
+	}
 	}-->
 
 }
