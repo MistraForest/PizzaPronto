@@ -8,6 +8,6 @@ public interface JsonNodeBuilder<T extends JsonNode> {
 	/**
      * Construct and return the {@link JsonNode} instance.
      */
-    T end();
+    T build();
 
 }

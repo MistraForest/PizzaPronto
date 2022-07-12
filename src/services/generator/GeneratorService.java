@@ -26,6 +26,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import PojoPronto.ClazzPojo;
+import PojoPronto.ConstructorPojo;
+import PojoPronto.GetterClazz;
+import PojoPronto.ParameterPojo;
+import PojoPronto.Propertie;
+import PojoPronto.SetterClazz;
 import Ue1.ChefVO;
 import Ue1.CustomerVO;
 import Ue1.PizzaVO;
@@ -96,11 +102,29 @@ public class GeneratorService {
 
 	public GeneratorService buildData(ClassConfiguration superClass) {
 		Map<String, Object> dataModel = new HashMap<String, Object>();
+		List<ClazzPojo> pojos = new ArrayList<>();
 
 		superClass.getClazz().forEach(actuelClass -> {
+			
+			ClazzPojo clazzPojo = new ClazzPojo();
+			String className = actuelClass.getClass().getSimpleName(); 
+			String packageName = actuelClass.getClass().getPackage().getName();
+			
+			clazzPojo.setPackageName(packageName);
+			clazzPojo.setClassName(className);
+			clazzPojo.setProperties(attributesPojoNodes(actuelClass.getClass()).getProperties());
+			clazzPojo.setConstructors(constructorsPojoNode(actuelClass.getClass()).getConstructors());
+			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
+			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
+			
+			pojos.add(clazzPojo);
+		
 
+			dataModel.put("clazzPojo", clazzPojo);
+			
 			dataModel.put("package", actuelClass.getClass().getPackage());
-			dataModel.put("className", actuelClass.getClass().getSimpleName());
+			
+			dataModel.put("className", className);
 
 			Method[] allDeclaredMethod = getMethods(actuelClass.getClass());
 			Field[] allFields = getFields(actuelClass.getClass());
@@ -111,21 +135,22 @@ public class GeneratorService {
 			// System.out.println(clazzAttr);
 			List<ObjectNode> clazzGetter = handleGettersNodes(actuelClass.getClass());
 			List<ObjectNode> clazzSetter = handleGettersNodes(actuelClass.getClass());
-			ArrayNode getter = array(clazzGetter).end();
-			ArrayNode setter = array(clazzSetter).end();
+
+			ArrayNode getter = array(clazzGetter).build();
+			ArrayNode setter = array(clazzSetter).build();
 
 			ObjectNode requestNode = object("package", actuelClass.getClass().getPackage().getName())
-					.with("className", actuelClass.getClass().getSimpleName())
-					.with("classProperties", array(clazzAttr))
-					.with("Getters", getter)
-					.with("Setters", setter)
-					.end();
+					.with("className", actuelClass.getClass().getSimpleName()).with("classProperties", array(clazzAttr))
+					.with("Getters", getter).with("Setters", setter).build();
 
 			System.out.println(requestNode);
 
+			dataModel.put("object", requestNode);
+			
 			Arrays.asList(allDeclaredMethod).stream().forEach(method -> {
-				
+
 				if (isGetter(method)) {
+					
 					String modifier = Modifier.toString(method.getModifiers());
 					String returnType = method.getReturnType().getSimpleName();
 					String methodName = method.getName();
@@ -134,7 +159,6 @@ public class GeneratorService {
 					dataModel.put("get_returnType", returnType);
 					dataModel.put("getter", methodName);
 					dataModel.put("val", retrieveFieldName(method));
-
 				}
 
 				Parameter[] parameters = getParameters(method);
@@ -173,6 +197,8 @@ public class GeneratorService {
 			configModel.add(dataModel);
 
 		});
+		
+		dataModel.put("pojos", pojos);
 
 		return engine;
 	}
@@ -190,6 +216,11 @@ public class GeneratorService {
 	private Method[] getMethods(Class<?> actuelClass) {
 		Method[] allDeclaredMethod = actuelClass.getDeclaredMethods();
 		return allDeclaredMethod;
+	}
+
+	private Constructor<?>[] getConstructors(Class<?> clazz) {
+		Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+		return declaredConstructors;
 	}
 
 	private List<String> handleConstructors(Constructor<?>[] declaredConstructors) {
@@ -304,11 +335,32 @@ public class GeneratorService {
 		for (Field field : declaredFields) {
 			String type = field.getGenericType().getTypeName();
 			fieldsForClazz = object("modifier", Modifier.toString(field.getModifiers())).with("type", extractType(type))
-					.with("field", field.getName()).end();
+					.with("field", field.getName()).build();
 
 			nodes.add(fieldsForClazz);
 		}
 		// System.out.println(fieldsForClazz);
+
+		return nodes;
+	}
+
+	private List<ObjectNode> attributesNodes(Class<?> clazz) {
+
+		Field[] declaredFields = clazz.getDeclaredFields();
+		ObjectNode fieldsForClazz = null;
+		List<ObjectNode> nodes = new ArrayList<ObjectNode>();
+
+		for (Field field : declaredFields) {
+
+			String type = field.getGenericType().getTypeName();
+			String modifier = Modifier.toString(field.getModifiers());
+			String propertieName = field.getName();
+
+			fieldsForClazz = object("modifier", modifier).with("type", extractType(type)).with("field", propertieName)
+					.build();
+
+			nodes.add(fieldsForClazz);
+		}
 
 		return nodes;
 	}
@@ -318,18 +370,18 @@ public class GeneratorService {
 		List<ObjectNode> nodes = new ArrayList<ObjectNode>();
 
 		for (Method method : getMethods(clazz)) {
-			
+
 			if (isGetter(method)) {
 				ObjectNode getter = null;
 				String modifier = Modifier.toString(method.getModifiers());
 				String returnType = method.getReturnType().getSimpleName();
 				String methodName = method.getName();
 				getter = object("modifier", modifier).with("returnType", extractType(returnType))
-						.with("name", methodName).with("fieldName", retrieveFieldName(method)).end();
-				
+						.with("name", methodName).with("fieldName", retrieveFieldName(method)).build();
+
 				nodes.add(getter);
 			}
-			
+
 		}
 		return nodes;
 	}
@@ -346,14 +398,144 @@ public class GeneratorService {
 				String returnType = method.getReturnType().getSimpleName();
 				String methodName = method.getName();
 				Parameter parameter = getParameters(method)[0];
-				getter = object("modifier", modifier).with("returnType", returnType).with("name", methodName)
+				getter = object("modifier", modifier).with("returnType", returnType).with("methodName", methodName)
 						.with("fieldName", retrieveFieldName(method)).with("paramType", parameter.getType().getName())
-						.with("param", parameter.getName()).end();
+						.with("paramName", parameter.getName()).build();
 				nodes.add(getter);
 			}
-			
+
 		}
 		return nodes;
+	}
+
+	private ClazzPojo attributesPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		Propertie propertie = new Propertie();
+		List<Propertie> properties = new ArrayList<>();
+
+		for (Field field : clazz.getDeclaredFields()) {
+			String type = field.getGenericType().getTypeName();
+			String modifier = Modifier.toString(field.getModifiers());
+			String propertieName = field.getName();
+
+			propertie.setModifier(modifier);
+			propertie.setType(type);
+			propertie.setPropertieName(propertieName);
+
+			properties.add(propertie);
+
+		}
+		clazzPojo.setProperties(properties);
+
+		return clazzPojo;
+	}
+
+	private ClazzPojo constructorsPojoNode(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		List<ConstructorPojo> constructors = new ArrayList<>();
+		ConstructorPojo constructor = new ConstructorPojo();
+
+		for (Constructor<?> actualConstructor : getConstructors(clazz)) {
+
+			int parameterCount = actualConstructor.getParameterCount();
+			String modifier = "";
+			String type = "";
+
+			if (parameterCount == 0) {
+
+				modifier = Modifier.toString(actualConstructor.getModifiers());
+				type = actualConstructor.getName();
+
+				constructor.setModifier(modifier);
+				constructor.setConstructorName(type);
+				constructor.setNoArgs(true);
+
+				constructors.add(constructor);
+			}
+			if (parameterCount > 0) {
+				modifier = Modifier.toString(actualConstructor.getModifiers());
+				type = actualConstructor.getName();
+
+				constructor.setModifier(modifier);
+				constructor.setConstructorName(type);
+				constructor.setNoArgs(false);
+
+				ParameterPojo parameter = new ParameterPojo();
+				List<ParameterPojo> parameters = new ArrayList<>();
+
+				for (Parameter actualParameter : actualConstructor.getParameters()) {
+					parameter.setType(actualParameter.getType().getName());
+					parameter.setParamName(actualParameter.getName());
+					parameters.add(parameter);
+				}
+				constructor.setParameters(parameters);
+			}
+			constructors.add(constructor);
+		}
+		clazzPojo.setConstructors(constructors);
+		
+		return clazzPojo;
+
+	}
+
+	private ClazzPojo gettersPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		GetterClazz getter = new GetterClazz();
+		List<GetterClazz> getters = new ArrayList<>();
+
+		for (Method method : getMethods(clazz)) {
+
+			if (isGetter(method)) {
+
+				String modifier = Modifier.toString(method.getModifiers());
+				String returnType = method.getReturnType().getSimpleName();
+				String methodName = method.getName();
+
+				getter.setModifier(modifier);
+				getter.setReturnType(extractType(returnType));
+				getter.setMethodName(methodName);
+				getter.setFieldName(retrieveFieldName(method));
+
+				getters.add(getter);
+			}
+		}
+		clazzPojo.setGetters(getters);
+
+		return clazzPojo;
+	}
+
+	private ClazzPojo settersPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		SetterClazz setter = new SetterClazz();
+		List<SetterClazz> setters = new ArrayList<>();
+
+		for (Method method : getMethods(clazz)) {
+
+			if (isSetter(method)) {
+
+				String modifier = Modifier.toString(method.getModifiers());
+				String returnType = method.getReturnType().getSimpleName();
+				String methodName = method.getName();
+				Parameter parameter = getParameters(method)[0];
+				String paramType = parameter.getType().getName();
+				String paramName = parameter.getName();
+
+				setter.setModifier(modifier);
+				setter.setReturnType(returnType);
+				setter.setMethodName(methodName);
+				setter.setFieldName(retrieveFieldName(method));
+				setter.setParamType(paramType);
+				setter.setParamName(paramName);
+
+				setters.add(setter);
+			}
+			clazzPojo.setSetters(setters);
+		}
+		return clazzPojo;
 	}
 
 	private StringBuffer buildMethodParameters(List<String> fieldNames, StringBuffer parameter, String methodName) {

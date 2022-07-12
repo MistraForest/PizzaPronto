@@ -13,7 +13,7 @@ public class ObjectNodeBuilder extends AbstractNodeBuilder<ObjectNode> {
 	}
 
 	public ObjectNodeBuilder with(@NonNull String field, @NonNull JsonNodeBuilder<?> builder) {
-		return with(field, builder.end());
+		return with(field, builder.build());
 	}
 
 	public ObjectNodeBuilder withPOJO(@NonNull String field, @NonNull Object pojo) {
@@ -51,7 +51,7 @@ public class ObjectNodeBuilder extends AbstractNodeBuilder<ObjectNode> {
 	}
 
 	@Override
-	public ObjectNode end() {
+	public ObjectNode build() {
 		return node;
 	}
 

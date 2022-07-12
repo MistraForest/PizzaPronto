@@ -71,7 +71,7 @@ public class ArrayNodeBuilder extends AbstractNodeBuilder<ArrayNode> {
 	}
 
 	public ArrayNodeBuilder with(JsonNodeBuilder<?> value) {
-		return with(value.end());
+		return with(value.build());
 	}
 
 	public ArrayNodeBuilder with(@NonNull JsonNodeBuilder<?>... builders) {
@@ -81,7 +81,7 @@ public class ArrayNodeBuilder extends AbstractNodeBuilder<ArrayNode> {
 	}
 
 	@Override
-	public ArrayNode end() {
+	public ArrayNode build() {
 		return node;
 	}
 
