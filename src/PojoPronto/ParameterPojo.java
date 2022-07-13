@@ -2,6 +2,11 @@ package PojoPronto;
 
 public class ParameterPojo {
 
+	@Override
+	public String toString() {
+		return String.format("ParameterPojo {\n\t\ttype=%s, \n\t\tparamName=%s, \n\t\tclazzToimport=%s\n}", type, paramName, clazzToimport);
+	}
+
 	private String type;
 	private String paramName;
 	private String clazzToimport;

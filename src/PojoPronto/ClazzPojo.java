@@ -9,6 +9,13 @@ import lombok.Setter;
 @Setter
 public class ClazzPojo {
 
+	@Override
+	public String toString() {
+		return String.format(
+				"ClazzPojo {packageName=%s, className=%s, \nproperties=%s, \ngetters=%s, \nsetters=%s, \nconstructors=%s}",
+				packageName, className, properties, getters, setters, constructors);
+	}
+
 	private String packageName;
 	private String className;
 	private List<Propertie> properties;

@@ -1,7 +1,10 @@
+
+<# BINDING ELEMENTS WITH POJO CLASS>
 <#assign pojo = clazzPojo >
 
-
 package ${clazzPojo.packageName};
+
+
 public class ${clazzPojo.className} {
 
 	<#list clazzPojo.properties as propertie>
@@ -16,7 +19,7 @@ public class ${clazzPojo.className} {
 	</#if>
 	
 	<#if constructor.noArgs == false>
-	<#list constructor.parameters as param>
+	<#list constructor.constParameters as param>
 	${constructor.modifier} ${constructor.constructorName}(${param.type} ${param.paramName}){
 		
 	}
@@ -38,59 +41,58 @@ public class ${clazzPojo.className} {
 	</#list>
 }
 
-<#list pojos as pojo>
+<#-- <#list pojos as pojo>
 	${pojo.className}
-</#list>
-<#--	
-	${clazzPojo.setters.modifier} ${clazzPojo.setters.returnType} ${clazzPojo.setters.methodName}(${paramType} ${param}){
-   		this.${field?uncap_first} = ${param};
-	}
-	
-	${getModifier} ${get_returnType} ${getter}(){
-   		return ${val?uncap_first};
-	}
+</#list> -->
 
 
-<#list imports as import>
-import ${import};
-</#list>
--->
-${package};
-public class ${className} {
+<#--<#--
 
+<# BINDING ELEMENTS WITH OBJECT NODE (String)>
 <#assign s = object >
-	${s.className} 
+	 
 	
-	<#--
-	${s.Getters[0].returnType} ${s.Getters[0].name} (){
-		return ${s.Getters.fieldName};
+package ${s.package?replace("\"", "")};
+public class ${s.className?replace("\"", "")} {
+	
+	${s.Getters[14..19]} ${s.Getters[36..40]} ${s.Getters[51..63]}(){
+		return ${s.Getters[79..88]?uncap_first};
 	}
-	<#list properties as propertie>
-	${propertie}
-    <#assign s = propertie >
-	</#list>
 	
-	<#list constructors as constructor>
-    ${constructor}
-	</#list>
-
-	${modifier} ${return} ${methodname}(${params}){
-   		${body}
-   		return ${val};
-	}
-	-->
-	
+	<#--  
 	${set_modifier} ${set_returnType} ${setter}(${paramType} ${param}){
    		this.${field?uncap_first} = ${param};
 	}
 	
-
 	${getModifier} ${get_returnType} ${getter}(){
    		return ${val?uncap_first};
 	}
 	
-
-	
-
-
 }
+
+
+<# FIRST BINDING METHODS>
+${package};
+
+<#list someImports as import>
+import ${import};
+</#list>
+
+public class ${className} {
+
+	<#list props as propertie>
+    ${propertie};
+	</#list>
+	
+	<#list constrs as constructor>
+    ${constructor}
+	</#list>
+	
+	<#list meths as method>
+    ${method}
+	</#list>
+	
+}
+-->
+	
+	

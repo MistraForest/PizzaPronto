@@ -2,6 +2,12 @@ package PojoPronto;
 
 public class Propertie {
 
+	@Override
+	public String toString() {
+		return String.format("Propertie {\n\t\tmodifier=%s, \n\t\ttype=%s, \n\t\tpropertieName=%s, \n\t\tclazzToimport=%s\n}", modifier, type,
+				propertieName, clazzToimport);
+	}
+
 	private String modifier;
 	private String type;
 	private String propertieName;

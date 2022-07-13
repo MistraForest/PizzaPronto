@@ -7,6 +7,12 @@ import lombok.Setter;
 @Setter
 public class GetterClazz {
 
+	@Override
+	public String toString() {
+		return String.format("GetterClazz {\n\t\tmodifier=%s, \n\t\treturnType=%s, \n\t\tmethodName=%s, \n\t\tfieldName=%s\n}", modifier,
+				returnType, methodName, fieldName);
+	}
+
 	private String modifier;
 	private String returnType;
 	private String methodName;

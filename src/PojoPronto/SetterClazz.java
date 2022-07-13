@@ -9,6 +9,13 @@ import lombok.Setter;
 @Setter
 public class SetterClazz {
 
+	@Override
+	public String toString() {
+		return String.format(
+				"\nSetterClazz {\n\t\tmodifier=%s, \n\t\treturnType=%s, \n\t\tmethodName=%s, \n\t\tfieldName=%s, \n\t\tparamType=%s, \n\t\tparamName=%s, \n\t\tparameters=%s]",
+				modifier, returnType, methodName, fieldName, paramType, paramName, parameters);
+	}
+
 	private String modifier;
 	private String returnType;
 	private String methodName;

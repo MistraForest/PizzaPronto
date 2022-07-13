@@ -4,13 +4,19 @@ import java.util.List;
 
 public class ConstructorPojo {
 
+	@Override
+	public String toString() {
+		return String.format("ConstructorPojo {\n\tnoArgs=%s, \n\tmodifier=%s, \n\tconstructorName=%s, \n\tparameters=%s\n}", noArgs,
+				modifier, constructorName, constParameters);
+	}
+
 	private boolean noArgs;
 	private String modifier;
 	private String constructorName;
-	private List<ParameterPojo> parameters;
+	private List<ParameterPojo> constParameters;
 
 	public boolean parameterCount() {
-		return parameters.isEmpty();
+		return constParameters.isEmpty();
 	}
 
 	public boolean isNoArgs() {
@@ -37,12 +43,12 @@ public class ConstructorPojo {
 		this.constructorName = constructorName;
 	}
 
-	public List<ParameterPojo> getParameters() {
-		return parameters;
+	public List<ParameterPojo> getConstParameters() {
+		return constParameters;
 	}
 
-	public void setParameters(List<ParameterPojo> parameters) {
-		this.parameters = parameters;
+	public void setConstParameters(List<ParameterPojo> parameters) {
+		this.constParameters = parameters;
 	}
 
 }
