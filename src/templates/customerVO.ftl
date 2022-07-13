@@ -11,21 +11,19 @@ public class ${clazzPojo.className} {
 	${propertie.modifier} ${propertie.type} ${propertie.propertieName};
 	</#list>
 	
+	
 	<#list clazzPojo.constructors as constructor>
 	<#if constructor.noArgs == true>
 	${constructor.modifier} ${constructor.constructorName}(){
 		
 	}
-	</#if>
-	
-	<#if constructor.noArgs == false>
-	<#list constructor.constParameters as param>
-	${constructor.modifier} ${constructor.constructorName}(${param.type} ${param.paramName}){
+	<#else>
+	${constructor.modifier} ${constructor.constructorName}(<#list constructor.constructorParameters as param>${param}<#sep>, </#list>){
 		
 	}
-	</#list>
-	</#if>
 	
+	</#if>
+
 	</#list>
 	
 	<#list clazzPojo.setters as setter>

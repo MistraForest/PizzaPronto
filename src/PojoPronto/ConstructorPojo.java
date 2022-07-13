@@ -7,16 +7,16 @@ public class ConstructorPojo {
 	@Override
 	public String toString() {
 		return String.format("ConstructorPojo {\n\tnoArgs=%s, \n\tmodifier=%s, \n\tconstructorName=%s, \n\tparameters=%s\n}", noArgs,
-				modifier, constructorName, constParameters);
+				modifier, constructorName, constructorParameters);
 	}
 
 	private boolean noArgs;
 	private String modifier;
 	private String constructorName;
-	private List<ParameterPojo> constParameters;
+	private List<String> constructorParameters;
 
 	public boolean parameterCount() {
-		return constParameters.isEmpty();
+		return constructorParameters.isEmpty();
 	}
 
 	public boolean isNoArgs() {
@@ -43,12 +43,12 @@ public class ConstructorPojo {
 		this.constructorName = constructorName;
 	}
 
-	public List<ParameterPojo> getConstParameters() {
-		return constParameters;
+	public List<String> getConstructorParameters() {
+		return constructorParameters;
 	}
 
-	public void setConstParameters(List<ParameterPojo> parameters) {
-		this.constParameters = parameters;
+	public void setConstructorParameters(List<String> parameters) {
+		this.constructorParameters = parameters;
 	}
 
 }

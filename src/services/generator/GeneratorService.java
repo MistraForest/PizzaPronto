@@ -134,7 +134,7 @@ public class GeneratorService {
 			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
 
 			// pojos.add(clazzPojo);
-			
+
 			dataModel.put("clazzPojo", clazzPojo);
 			configModel.add(dataModel);
 		}
@@ -251,10 +251,13 @@ public class GeneratorService {
 	 * returnType); dataModel.put("getter", methodName); dataModel.put("val",
 	 * retrieveFieldName(method)); }
 	 * 
-	 * private Field[] getFields(Class<?> clazz) { Field[] allFields =
-	 * clazz.getDeclaredFields(); return allFields; }
-	 * 
-	 */private Parameter[] getParameters(Method method) {
+	 */
+	private Field[] getFields(Class<?> clazz) {
+		Field[] allFields = clazz.getDeclaredFields();
+		return allFields;
+	}
+
+	private Parameter[] getParameters(Method method) {
 		Parameter[] parameters = method.getParameters();
 		return parameters;
 	}
@@ -440,10 +443,10 @@ public class GeneratorService {
 	private ClazzPojo attributesPojoNodes(Class<?> clazz) {
 
 		ClazzPojo clazzPojo = new ClazzPojo();
-		
+
 		List<Propertie> properties = new ArrayList<>();
 
-		for (Field field : clazz.getDeclaredFields()) {
+		for (Field field : getFields(clazz)) {
 			Propertie propertie = new Propertie();
 			String type = field.getGenericType().getTypeName();
 			String modifier = Modifier.toString(field.getModifiers());
@@ -454,9 +457,9 @@ public class GeneratorService {
 			propertie.setPropertieName(propertieName);
 
 			properties.add(propertie);
-			System.out.println(propertie);
+
 		}
-		
+
 		clazzPojo.setProperties(properties);
 
 		return clazzPojo;
@@ -466,12 +469,11 @@ public class GeneratorService {
 
 		ClazzPojo clazzPojo = new ClazzPojo();
 		List<ConstructorPojo> constructors = new ArrayList<>();
-		
 
 		for (Constructor<?> actualConstructor : getConstructors(clazz)) {
-			
+
 			ConstructorPojo constructor = new ConstructorPojo();
-			
+
 			int parameterCount = actualConstructor.getParameterCount();
 			String modifier = "";
 			String type = "";
@@ -484,9 +486,11 @@ public class GeneratorService {
 				constructor.setModifier(modifier);
 				constructor.setConstructorName(type);
 				constructor.setNoArgs(true);
-				constructor.setConstParameters(null);
+				constructor.setConstructorParameters(null);
+				//System.out.println(clazz.getSimpleName()+" count:"+parameterCount+"\n\tConstParam:\t"+constructor);
 
 				constructors.add(constructor);
+				clazzPojo.setConstructors(constructors);
 			}
 			if (parameterCount > 0) {
 
@@ -497,24 +501,23 @@ public class GeneratorService {
 				constructor.setConstructorName(type);
 				constructor.setNoArgs(false);
 
-				ParameterPojo parameter = new ParameterPojo();
-				List<ParameterPojo> parameters = new ArrayList<>();
+				List<String> parameters = new ArrayList<>();
 
 				for (Parameter actualParameter : actualConstructor.getParameters()) {
-					parameter.setType(actualParameter.getType().getName());
+					ParameterPojo parameter = new ParameterPojo();
+					parameter.setType(actualParameter.getType().getSimpleName());
 					parameter.setParamName(actualParameter.getName());
-					parameters.add(parameter);
-
+					//String paramet = parameter.getType().concat(" "+parameter.getParamName());
+					parameters.add(parameter.templateString());
 				}
-
-				constructor.setConstParameters(parameters);
+				constructor.setConstructorParameters(parameters);
+				
 				constructors.add(constructor);
-
+				//System.out.println(clazz.getSimpleName()+" constructor:"+constructor);
 			}
 
 		}
-		clazzPojo.setConstructors(constructors);
-
+		
 		return clazzPojo;
 
 	}
@@ -522,7 +525,7 @@ public class GeneratorService {
 	private ClazzPojo gettersPojoNodes(Class<?> clazz) {
 
 		ClazzPojo clazzPojo = new ClazzPojo();
-		
+
 		List<GetterClazz> getters = new ArrayList<>();
 
 		for (Method method : getMethods(clazz)) {
@@ -549,7 +552,7 @@ public class GeneratorService {
 	private ClazzPojo settersPojoNodes(Class<?> clazz) {
 
 		ClazzPojo clazzPojo = new ClazzPojo();
-		
+
 		List<SetterClazz> setters = new ArrayList<>();
 
 		for (Method method : getMethods(clazz)) {
@@ -634,7 +637,7 @@ public class GeneratorService {
 
 				new File(packageName).mkdirs();
 				file = new FileWriter(new File(packageName + className + ".java"));
-
+				//System.out.println(packageName + className + ".java");
 				template.process(model, file);
 				file.flush();
 			}

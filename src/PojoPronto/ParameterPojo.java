@@ -6,6 +6,10 @@ public class ParameterPojo {
 	public String toString() {
 		return String.format("ParameterPojo {\n\t\ttype=%s, \n\t\tparamName=%s, \n\t\tclazzToimport=%s\n}", type, paramName, clazzToimport);
 	}
+	
+	public String templateString() {
+		return String.format("%s %s", type, paramName);
+	}
 
 	private String type;
 	private String paramName;
