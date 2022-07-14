@@ -65,7 +65,7 @@ public class GeneratorService {
 	private final String TEMPLATE_FILE = "customerVO.ftl";
 
 	private Template template;
-	private List<Map<String, ClazzPojo>> configModel = new ArrayList<Map<String, ClazzPojo>>();
+	private Map<String, Map<String, ClazzPojo>> configModel = new HashMap<String, Map<String, ClazzPojo>>();
 
 	/*
 	 * private List<String> fieldNames = new ArrayList<String>(); private
@@ -122,6 +122,7 @@ public class GeneratorService {
 		// List<ClazzPojo> pojos = new ArrayList<>();
 
 		for (Object actuelClass : superClass.getClazz()) {
+			
 			ClazzPojo clazzPojo = new ClazzPojo();
 			String className = actuelClass.getClass().getSimpleName();
 			String packageName = actuelClass.getClass().getPackage().getName();
@@ -133,12 +134,12 @@ public class GeneratorService {
 			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
 			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
 
-			// pojos.add(clazzPojo);
-
 			dataModel.put("clazzPojo", clazzPojo);
-			configModel.add(dataModel);
-		}
+			configModel.put(actuelClass.getClass().getSimpleName(), dataModel);
+			dataModel = new HashMap<String, ClazzPojo>();
 
+		}
+		System.out.println(configModel);
 //		superClass.getClazz().forEach(actuelClass -> {
 //			
 //			String className = actuelClass.getClass().getSimpleName();
@@ -487,7 +488,6 @@ public class GeneratorService {
 				constructor.setConstructorName(type);
 				constructor.setNoArgs(true);
 				constructor.setConstructorParameters(null);
-				//System.out.println(clazz.getSimpleName()+" count:"+parameterCount+"\n\tConstParam:\t"+constructor);
 
 				constructors.add(constructor);
 				clazzPojo.setConstructors(constructors);
@@ -605,42 +605,47 @@ public class GeneratorService {
 	}
 
 	public void writeFile() {
-		Writer file = null;
-		for (Map<String, ClazzPojo> map : configModel) {
-			// System.out.println("\nconfigModel: "+map);
-		}
-
+		Writer file = Writer.nullWriter();
+		
 		try {
-
-			for (Map<String, ClazzPojo> model : configModel) {
+			for(Map.Entry<String, Map<String, ClazzPojo>> entry: configModel.entrySet()) {
 				String packageName = "";
 				String className = "";
-				// Handling when using ObjectNode
-//				String obj = model.get("object").toString();
-//				JsonNode node = new ObjectMapper().readTree(obj);
-//				String packageName = node.get("package").toString().replaceAll("\"", "");
-//				String className = node.get("className").toString().replaceAll("\"", "");
-
-				ClazzPojo pojo = (ClazzPojo) model.get("clazzPojo");
-
-				packageName = pojo.getPackageName().toString();
-				className = pojo.getClassName().toString();
-
-				// packageName = model.get("package").toString();
-				// className = model.get("className").toString();
-
-				// packageName = packageName.replace(";", File.separator);
-
+				ClazzPojo pojo = entry.getValue().get("clazzPojo");
+				
+				//System.out.println(entry.getValue());
+				
+				packageName = pojo.getPackageName();
+				className = entry.getKey(); //pojo.getClassName()
+				
 				packageName = packageName.replace("package ", "");
 
 				packageName = GENERATED + packageName + "/";
 
 				new File(packageName).mkdirs();
 				file = new FileWriter(new File(packageName + className + ".java"));
-				//System.out.println(packageName + className + ".java");
-				template.process(model, file);
+				
+				template.process(entry.getValue(), file);
 				file.flush();
 			}
+		//	for (Map<String, ClazzPojo> model : configModel) {
+				
+				
+				// Handling when using ObjectNode
+//				String obj = model.get("object").toString();
+//				JsonNode node = new ObjectMapper().readTree(obj);
+//				String packageName = node.get("package").toString().replaceAll("\"", "");
+//				String className = node.get("className").toString().replaceAll("\"", "");
+
+				
+
+				// packageName = model.get("package").toString();
+				// className = model.get("className").toString();
+
+				// packageName = packageName.replace(";", File.separator);
+
+				
+		//	}
 
 			System.out.println("Generation Success !!!");
 
