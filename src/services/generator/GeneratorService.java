@@ -139,7 +139,7 @@ public class GeneratorService {
 			dataModel = new HashMap<String, ClazzPojo>();
 
 		}
-		System.out.println(configModel);
+	//	System.out.println(configModel);
 //		superClass.getClazz().forEach(actuelClass -> {
 //			
 //			String className = actuelClass.getClass().getSimpleName();
