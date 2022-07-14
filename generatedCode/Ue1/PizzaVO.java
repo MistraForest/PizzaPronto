@@ -10,16 +10,13 @@ public class PizzaVO {
 	private java.lang.String[] ingredients;
 	private float price;
 	
-	
 	public Ue1.PizzaVO(String arg0, String[] arg1, float arg2){
 		
-	}
-	
-
+	}	
 	public Ue1.PizzaVO(){
 		
-	}
-
+	}	
+	
 	
 	public void setName(java.lang.String arg0){
 		this.name = arg0;
@@ -40,5 +37,8 @@ public class PizzaVO {
 	public float getPrice(){
 		return price;
 	}
+	
+	public String toString(){
+		
+	}	
 }
-
