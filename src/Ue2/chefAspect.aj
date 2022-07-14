@@ -4,7 +4,7 @@ import Ue1.ChefVO;
 import root.Pronto;
 import services.generator.GeneratorService;
 
-public aspect pizzaPronto extends Uebung02{	
+public aspect chefAspect extends Uebung02{	
 		
 	declare parents : ChefVO extends Pronto;
 

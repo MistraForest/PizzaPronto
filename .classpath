@@ -10,5 +10,9 @@
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/freemarker-gae-2.3.31.jar"/>
 	<classpathentry kind="lib" path="lib/JavaForger-2.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/lombok.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.13.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.13.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.13.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
