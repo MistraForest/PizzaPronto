@@ -27,6 +27,9 @@ public class CustomerVO {
 	
 
 	
+	public void setDateOfBirth(java.time.LocalDate arg0){
+		this.dateOfBirth = arg0;
+	}
 	public void setLastName(java.lang.String arg0){
 		this.lastName = arg0;
 	}
@@ -36,21 +39,18 @@ public class CustomerVO {
 	public void setFirstName(java.lang.String arg0){
 		this.firstName = arg0;
 	}
-	public void setDateOfBirth(java.time.LocalDate arg0){
-		this.dateOfBirth = arg0;
-	}
 	
+	public String getGender(){
+		return gender;
+	}
+	public LocalDate getDateOfBirth(){
+		return dateOfBirth;
+	}
 	public String getFirstName(){
 		return firstName;
 	}
 	public String getLastName(){
 		return lastName;
-	}
-	public LocalDate getDateOfBirth(){
-		return dateOfBirth;
-	}
-	public String getGender(){
-		return gender;
 	}
 }
 
