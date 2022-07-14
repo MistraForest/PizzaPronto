@@ -40,17 +40,17 @@ public class CustomerVO {
 		this.dateOfBirth = arg0;
 	}
 	
-	public String getLastName(){
-		return lastName;
-	}
 	public String getFirstName(){
 		return firstName;
 	}
-	public String getGender(){
-		return gender;
+	public String getLastName(){
+		return lastName;
 	}
 	public LocalDate getDateOfBirth(){
 		return dateOfBirth;
+	}
+	public String getGender(){
+		return gender;
 	}
 }
 
