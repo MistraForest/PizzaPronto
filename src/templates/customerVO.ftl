@@ -11,7 +11,9 @@ public class ${clazzPojo.className} {
 	${propertie.modifier} ${propertie.type} ${propertie.propertieName};
 	</#list>
 	
-	
+	<#if clazzPojo.noConstructors == true>
+	//No constructors declared
+	<#else>	
 	<#list clazzPojo.constructors as constructor>
 	<#if constructor.noArgs == true>
 	${constructor.modifier} ${constructor.constructorName}(){
@@ -20,11 +22,11 @@ public class ${clazzPojo.className} {
 	<#else>
 	${constructor.modifier} ${constructor.constructorName}(<#list constructor.constructorParameters as param>${param}<#sep>, </#list>){
 		
-	}
+	}	
+	</#if>
+	</#list>
 	
 	</#if>
-
-	</#list>
 	
 	<#list clazzPojo.setters as setter>
 	${setter.modifier} ${setter.returnType} ${setter.methodName}(${setter.paramType} ${setter.paramName}){
@@ -37,60 +39,14 @@ public class ${clazzPojo.className} {
 		return ${getter.fieldName?uncap_first};
 	}
 	</#list>
-}
-
-<#-- <#list pojos as pojo>
-	${pojo.className}
-</#list> -->
-
-
-<#--<#--
-
-<# BINDING ELEMENTS WITH OBJECT NODE (String)>
-<#assign s = object >
-	 
 	
-package ${s.package?replace("\"", "")};
-public class ${s.className?replace("\"", "")} {
-	
-	${s.Getters[14..19]} ${s.Getters[36..40]} ${s.Getters[51..63]}(){
-		return ${s.Getters[79..88]?uncap_first};
-	}
-	
-	<#--  
-	${set_modifier} ${set_returnType} ${setter}(${paramType} ${param}){
-   		this.${field?uncap_first} = ${param};
-	}
-	
-	${getModifier} ${get_returnType} ${getter}(){
-   		return ${val?uncap_first};
-	}
-	
-}
-
-
-<# FIRST BINDING METHODS>
-${package};
-
-<#list someImports as import>
-import ${import};
-</#list>
-
-public class ${className} {
-
-	<#list props as propertie>
-    ${propertie};
+	<#if clazzPojo.noMethods == true>
+	//No methods declared
+	<#else>
+	<#list clazzPojo.pojoMethods as method>
+	${method.modifier} ${method.returnType} ${method.methodName}(<#list method.methodParameters as param>${param}<#sep>, </#list>){
+		
+	}	
 	</#list>
-	
-	<#list constrs as constructor>
-    ${constructor}
-	</#list>
-	
-	<#list meths as method>
-    ${method}
-	</#list>
-	
+	</#if>
 }
--->
-	
-	

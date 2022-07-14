@@ -31,6 +31,7 @@ import PojoPronto.ClazzPojo;
 import PojoPronto.ConstructorPojo;
 import PojoPronto.GetterClazz;
 import PojoPronto.ParameterPojo;
+import PojoPronto.PojoMethod;
 import PojoPronto.Propertie;
 import PojoPronto.SetterClazz;
 import Ue1.ChefVO;
@@ -54,13 +55,6 @@ public class GeneratorService {
 
 	private static GeneratorService engine = new GeneratorService();
 
-	/*
-	 * private final String SPACE_1 = " "; private final String PARANTHESIS_OPEN =
-	 * "("; private final String PARANTHESIS_CLOSE = ")"; private final String
-	 * CURLY_BRACKET_OPEN = "{"; private final String CURLY_BRACKET_CLOSE = "}";
-	 * private final String TAB = "\t";
-	 */
-	private final String NEW_LINE = "\n";
 	private final String GENERATED = "generatedCode/";
 	private final String TEMPLATE_FILE = "customerVO.ftl";
 
@@ -126,7 +120,8 @@ public class GeneratorService {
 			clazzPojo.setConstructors(constructorsPojoNode(actuelClass.getClass()).getConstructors());
 			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
 			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
-
+			clazzPojo.setPojoMethods(methodsPojoNode(actuelClass.getClass()).getPojoMethods());
+			
 			dataModel.put("clazzPojo", clazzPojo);
 			configModel.put(actuelClass.getClass().getSimpleName(), dataModel);
 			dataModel = new HashMap<String, ClazzPojo>();
@@ -144,8 +139,8 @@ public class GeneratorService {
 		return parameters;
 	}
 
-	private Method[] getMethods(Class<?> actuelClass) {
-		Method[] allDeclaredMethod = actuelClass.getDeclaredMethods();
+	private Method[] getMethods(Class<?> clazz) {
+		Method[] allDeclaredMethod = clazz.getDeclaredMethods();
 		return allDeclaredMethod;
 	}
 
@@ -186,36 +181,29 @@ public class GeneratorService {
 		ClazzPojo clazzPojo = new ClazzPojo();
 		List<ConstructorPojo> constructors = new ArrayList<>();
 
+		if (getConstructors(clazz).length == 0) {
+			clazzPojo.setNoConstructors(true);
+		}
+		clazzPojo.setNoConstructors(false);
+		
 		for (Constructor<?> actualConstructor : getConstructors(clazz)) {
 
 			ConstructorPojo constructor = new ConstructorPojo();
+
+			String modifier = Modifier.toString(actualConstructor.getModifiers());
+			String name = actualConstructor.getName();
 			
-			if (actualConstructor.getParameters()==null) {
-				System.err.println("Error when fetching parameter for: "+ actualConstructor.getName());
-			}
+			constructor.setModifier(modifier);
+			constructor.setConstructorName(name);
+			
+			if (actualConstructor.isVarArgs()) {
 
-			int parameterCount = actualConstructor.getParameterCount();
-			String modifier = "";
-			String name = "";
-
-			if (parameterCount == 0) {
-
-				modifier = Modifier.toString(actualConstructor.getModifiers());
-				name = actualConstructor.getName();
-
-				constructor.setModifier(modifier);
-				constructor.setConstructorName(name);
 				constructor.setNoArgs(true);
 				constructor.setConstructorParameters(null);
 
 				constructors.add(constructor);
 			}
 			else {
-				modifier = Modifier.toString(actualConstructor.getModifiers());
-				name = actualConstructor.getName();
-
-				constructor.setModifier(modifier);
-				constructor.setConstructorName(name);
 				constructor.setNoArgs(false);
 
 				List<String> parameters = new ArrayList<>();
@@ -229,8 +217,10 @@ public class GeneratorService {
 				constructor.setConstructorParameters(parameters);
 				constructors.add(constructor);
 			}
+			
 			clazzPojo.setConstructors(constructors);
 		}
+		
 		return clazzPojo;
 	}
 
@@ -249,7 +239,7 @@ public class GeneratorService {
 				String methodName = method.getName();
 
 				getter.setModifier(modifier);
-				getter.setReturnType(extractType(returnType));
+				getter.setReturnType(returnType);
 				getter.setMethodName(methodName);
 				getter.setFieldName(retrieveFieldName(method));
 
@@ -292,32 +282,53 @@ public class GeneratorService {
 		return clazzPojo;
 	}
 
-	private String buildMethodParameters(List<String> fieldNames, StringBuffer parameter, String methodName) {
-
-		// Handle parameters for setters
-		if (methodName.startsWith("set")) {
-
-			for (String field : fieldNames) {
-				if (methodName.contains(field.toLowerCase())) {
-					String copy = parameter.toString().replace("arg0", field);
-					parameter = new StringBuffer(copy);
-				}
-			}
+	private ClazzPojo methodsPojoNode(Class<?> clazz) {
+		
+		ClazzPojo clazzPojo = new ClazzPojo();
+		List<PojoMethod> pojoMethods = new ArrayList<>();
+		
+		if (getMethods(clazz).length == 0) {
+			clazzPojo.setNoMethods(true);
 		}
+		clazzPojo.setNoMethods(false);
+		
+		for (Method actualMethod : getMethods(clazz)) {
+			
+			if (!isGetter(actualMethod) && !isSetter(actualMethod)) {
+				PojoMethod method = new PojoMethod();
+				String modifier = Modifier.toString(actualMethod.getModifiers());
+				String methodName = actualMethod.getName();
+				String returnType = actualMethod.getReturnType().getSimpleName();
+				
+				method.setModifier(modifier);
+				method.setMethodName(methodName);
+				method.setReturnType(returnType);
+				
+				if (actualMethod.isVarArgs()) {
+									
+					method.setNoArgs(true);
+					method.setMethodParameters(null);
+					
+					pojoMethods.add(method);
+				}
+				else {
+					method.setNoArgs(false);
+					List<String> methodParameters = new ArrayList<>();
+					
+					for (Parameter actuelParameter : getParameters(actualMethod)) {
+						ParameterPojo parameter = new ParameterPojo();
+						parameter.setType(actuelParameter.getType().getName());
+						parameter.setParamName(actuelParameter.getName());
+						methodParameters.add(parameter.templateString());
+					}
+					method.setMethodParameters(methodParameters);
+					pojoMethods.add(method);
+				}
+				clazzPojo.setPojoMethods(pojoMethods);
+			}
 
-		// Handle other method's parameters // coming soon...
-
-		return parameter.toString();
-
-	}
-
-	private void addClasstoImport(List<String> importClassList, String classToImport) {
-		if (!importClassList.contains(classToImport))
-			importClassList.add(classToImport);
-	}
-
-	private String extractType(String type) {
-		return type.substring(type.lastIndexOf('.') + 1);
+		}
+		return clazzPojo;	
 	}
 
 	public void writeFile() {
@@ -386,6 +397,39 @@ public class GeneratorService {
 			methodName = method.getName().replaceFirst("set", "");
 		}
 		return methodName;
+	}
+	
+	
+	
+	
+	
+	
+	private String buildMethodParameters(List<String> fieldNames, StringBuffer parameter, String methodName) {
+
+		// Handle parameters for setters
+		if (methodName.startsWith("set")) {
+
+			for (String field : fieldNames) {
+				if (methodName.contains(field.toLowerCase())) {
+					String copy = parameter.toString().replace("arg0", field);
+					parameter = new StringBuffer(copy);
+				}
+			}
+		}
+
+		// Handle other method's parameters // coming soon...
+
+		return parameter.toString();
+
+	}
+
+	private void addClasstoImport(List<String> importClassList, String classToImport) {
+		if (!importClassList.contains(classToImport))
+			importClassList.add(classToImport);
+	}
+
+	private String extractType(String type) {
+		return type.substring(type.lastIndexOf('.') + 1);
 	}
 
 }
