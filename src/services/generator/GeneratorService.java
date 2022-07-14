@@ -265,7 +265,7 @@ public class GeneratorService {
 				String returnType = method.getReturnType().getSimpleName();
 				String methodName = method.getName();
 				Parameter parameter = getParameters(method)[0];
-				String paramType = parameter.getType().getName();
+				String paramType = parameter.getType().getSimpleName();
 				String paramName = parameter.getName();
 
 				setter.setModifier(modifier);
@@ -317,7 +317,7 @@ public class GeneratorService {
 					
 					for (Parameter actuelParameter : getParameters(actualMethod)) {
 						ParameterPojo parameter = new ParameterPojo();
-						parameter.setType(actuelParameter.getType().getName());
+						parameter.setType(actuelParameter.getType().getSimpleName());
 						parameter.setParamName(actuelParameter.getName());
 						methodParameters.add(parameter.templateString());
 					}
@@ -404,17 +404,22 @@ public class GeneratorService {
 	
 	
 	
-	private String buildMethodParameters(List<String> fieldNames, StringBuffer parameter, String methodName) {
-
+	private String buildMethodParameters(Method method) {
+		StringBuffer parameter = null;
 		// Handle parameters for setters
-		if (methodName.startsWith("set")) {
-
-			for (String field : fieldNames) {
-				if (methodName.contains(field.toLowerCase())) {
-					String copy = parameter.toString().replace("arg0", field);
-					parameter = new StringBuffer(copy);
-				}
+		for (Parameter methodParam : method.getParameters()) {
+			if (isSetter(method)) {
+				
 			}
+		
+		
+			
+		//	for (String field : fieldNames) {
+			//	if (methodName.contains(field.toLowerCase())) {
+					String copy = parameter.toString().replace("arg0", "field");
+					parameter = new StringBuffer(copy);
+				//}
+			//}
 		}
 
 		// Handle other method's parameters // coming soon...

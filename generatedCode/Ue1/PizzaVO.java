@@ -18,10 +18,10 @@ public class PizzaVO {
 	}	
 	
 	
-	public void setName(java.lang.String arg0){
+	public void setName(String arg0){
 		this.name = arg0;
 	}
-	public void setIngredients([Ljava.lang.String; arg0){
+	public void setIngredients(String[] arg0){
 		this.ingredients = arg0;
 	}
 	public void setPrice(float arg0){

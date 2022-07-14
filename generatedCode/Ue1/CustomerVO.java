@@ -22,16 +22,16 @@ public class CustomerVO {
 	}	
 	
 	
-	public void setGender(java.lang.String arg0){
+	public void setGender(String arg0){
 		this.gender = arg0;
 	}
-	public void setLastName(java.lang.String arg0){
+	public void setLastName(String arg0){
 		this.lastName = arg0;
 	}
-	public void setFirstName(java.lang.String arg0){
+	public void setFirstName(String arg0){
 		this.firstName = arg0;
 	}
-	public void setDateOfBirth(java.time.LocalDate arg0){
+	public void setDateOfBirth(LocalDate arg0){
 		this.dateOfBirth = arg0;
 	}
 	
@@ -41,20 +41,20 @@ public class CustomerVO {
 	public String getLastName(){
 		return lastName;
 	}
-	public String getGender(){
-		return gender;
-	}
 	public LocalDate getDateOfBirth(){
 		return dateOfBirth;
+	}
+	public String getGender(){
+		return gender;
 	}
 	
 	public String toString(){
 		
 	}	
-	public String dobToString(){
+	public short calculateAge(LocalDate arg0){
 		
 	}	
-	public short calculateAge(java.time.LocalDate arg0){
+	public String dobToString(){
 		
 	}	
 }
