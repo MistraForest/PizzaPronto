@@ -27,11 +27,11 @@ public class CustomerVO {
 	
 
 	
-	public void setGender(java.lang.String arg0){
-		this.gender = arg0;
-	}
 	public void setLastName(java.lang.String arg0){
 		this.lastName = arg0;
+	}
+	public void setGender(java.lang.String arg0){
+		this.gender = arg0;
 	}
 	public void setFirstName(java.lang.String arg0){
 		this.firstName = arg0;

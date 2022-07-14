@@ -34,11 +34,11 @@ public class PizzaVO {
 	public String getName(){
 		return name;
 	}
-	public float getPrice(){
-		return price;
-	}
 	public String[] getIngredients(){
 		return ingredients;
+	}
+	public float getPrice(){
+		return price;
 	}
 }
 

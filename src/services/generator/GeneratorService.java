@@ -507,13 +507,11 @@ public class GeneratorService {
 					ParameterPojo parameter = new ParameterPojo();
 					parameter.setType(actualParameter.getType().getSimpleName());
 					parameter.setParamName(actualParameter.getName());
-					//String paramet = parameter.getType().concat(" "+parameter.getParamName());
 					parameters.add(parameter.templateString());
 				}
 				constructor.setConstructorParameters(parameters);
 				
 				constructors.add(constructor);
-				//System.out.println(clazz.getSimpleName()+" constructor:"+constructor);
 			}
 
 		}
@@ -608,12 +606,12 @@ public class GeneratorService {
 		Writer file = Writer.nullWriter();
 		
 		try {
+			
 			for(Map.Entry<String, Map<String, ClazzPojo>> entry: configModel.entrySet()) {
+				
 				String packageName = "";
 				String className = "";
 				ClazzPojo pojo = entry.getValue().get("clazzPojo");
-				
-				//System.out.println(entry.getValue());
 				
 				packageName = pojo.getPackageName();
 				className = pojo.getClassName(); //pojo.getClassName()
@@ -690,13 +688,4 @@ public class GeneratorService {
 		return methodName;
 	}
 
-	/*
-	 * public static JsonNode parseJson(String json) throws Exception {
-	 * 
-	 * ObjectMapper mapper = new ObjectMapper(); JsonFactory f = new
-	 * MappingJsonFactory(); JsonParser jp = null; JsonNode rootNode = null; try {
-	 * jp = f.createJsonParser(json); rootNode = mapper.readTree(jp); } catch
-	 * (Exception e) { throw e; } finally { if (jp != null) jp.close(); } return
-	 * rootNode; }
-	 */
 }

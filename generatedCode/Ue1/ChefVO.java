@@ -21,11 +21,11 @@ public class ChefVO {
 	}
 
 	
-	public void setColorApron(java.awt.Color arg0){
-		this.colorApron = arg0;
-	}
 	public void setLastName(java.lang.String arg0){
 		this.lastName = arg0;
+	}
+	public void setColorApron(java.awt.Color arg0){
+		this.colorApron = arg0;
 	}
 	public void setFirstName(java.lang.String arg0){
 		this.firstName = arg0;
