@@ -46,11 +46,11 @@ public class CustomerVO {
 	public String getLastName(){
 		return lastName;
 	}
-	public String getGender(){
-		return gender;
-	}
 	public LocalDate getDateOfBirth(){
 		return dateOfBirth;
+	}
+	public String getGender(){
+		return gender;
 	}
 }
 

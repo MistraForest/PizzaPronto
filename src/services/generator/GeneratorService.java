@@ -616,7 +616,7 @@ public class GeneratorService {
 				//System.out.println(entry.getValue());
 				
 				packageName = pojo.getPackageName();
-				className = entry.getKey(); //pojo.getClassName()
+				className = pojo.getClassName(); //pojo.getClassName()
 				
 				packageName = packageName.replace("package ", "");
 

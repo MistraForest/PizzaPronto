@@ -24,21 +24,21 @@ public class PizzaVO {
 	public void setName(java.lang.String arg0){
 		this.name = arg0;
 	}
-	public void setPrice(float arg0){
-		this.price = arg0;
-	}
 	public void setIngredients([Ljava.lang.String; arg0){
 		this.ingredients = arg0;
+	}
+	public void setPrice(float arg0){
+		this.price = arg0;
 	}
 	
 	public String getName(){
 		return name;
 	}
-	public String[] getIngredients(){
-		return ingredients;
-	}
 	public float getPrice(){
 		return price;
+	}
+	public String[] getIngredients(){
+		return ingredients;
 	}
 }
 
