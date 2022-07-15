@@ -1,8 +1,10 @@
 package Ue2;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import root.Pronto;
 
@@ -49,9 +51,7 @@ public abstract aspect Uebung02 {
 		for (Method method : getMethods(pronto)) {
 			
 			try {
-				if(method.getReturnType().equals(String[].class)) {
-					invoke(method, pronto);
-				}
+				
 				buffer.append(
 						isGetter(method) ? retrieveFieldName4ToString(method) + ": " + executeTheGetter(method, pronto) + ", " : ""
 						);

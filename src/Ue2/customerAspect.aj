@@ -6,7 +6,7 @@ import java.time.Period;
 
 import root.Pronto;
 
-public aspect CustomerVO extends Uebung02{
+public aspect customerAspect extends Uebung02{
 	
 	declare parents : Ue1.CustomerVO extends Pronto;
 	

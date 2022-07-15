@@ -1,5 +1,6 @@
 package services.generator;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,68 +10,91 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import javax.swing.plaf.ListUI;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import PojoPronto.ClazzPojo;
+import PojoPronto.ConstructorPojo;
+import PojoPronto.GetterClazz;
+import PojoPronto.ParameterPojo;
+import PojoPronto.PojoMethod;
+import PojoPronto.Propertie;
+import PojoPronto.SetterClazz;
 import Ue1.ChefVO;
 import Ue1.CustomerVO;
+import Ue1.PizzaVO;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
+import lombok.NonNull;
+import lombok.val;
 import root.Pronto;
 import services.ClassConfiguration;
+import utils.ImportUtil;
+import utils.JsonNodeBuilder;
 
+import static utils.JsonBuilder.object;
+import static utils.JsonBuilder.array;
 
 public class GeneratorService {
 
 	private static GeneratorService engine = new GeneratorService();
-	
-	private final String SPACE_1 = " ";
-	private final String PARANTHESIS_OPEN = "(";
-	private final String PARANTHESIS_CLOSE = ")";
-	private final String CURLY_BRACKET_OPEN = "{";
-	private final String CURLY_BRACKET_CLOSE = "}";
-	private final String TAB = "\t";
-	private final String NEW_LINE = "\n";
+
 	private final String GENERATED = "generatedCode/";
-	private final String TEMPLATE_FILE = "pizzaPronto.ftl";
-	
+	private final String TEMPLATE_FILE = "customerVO.ftl";
+
 	private Template template;
-	private List<Map<String, Object>> configModel = new ArrayList<Map<String,Object>>();
+	private Map<String, Map<String, ClazzPojo>> configModel = new HashMap<String, Map<String, ClazzPojo>>();
 
-	
-	private List<String> fieldNames = new ArrayList<String>();
-	List<String> importClassList = new ArrayList<String>();
-	
-
+	/*
+	 * private List<String> fieldNames = new ArrayList<String>(); private
+	 * List<String> importClassList = new ArrayList<String>();
+	 */
 	private GeneratorService() {
-
 		init();
 	}
 
 	private void init() {
-		
+
 		Configuration configuration = new Configuration(new Version(2, 3, 31));
-		
+
 		configuration.setIncompatibleImprovements(new Version(2, 3, 31));
 		configuration.setDefaultEncoding("UTF-8");
 		configuration.setLocale(Locale.GERMAN);
 		configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-		 
-		FileTemplateLoader ftl1 = null;
+
+		FileTemplateLoader templateLoader = null;
 
 		try {
-			ftl1 = new FileTemplateLoader(new File("src/templates"));
-			configuration.setTemplateLoader(ftl1);
-			
+			templateLoader = new FileTemplateLoader(new File("src/templates"));
+			configuration.setTemplateLoader(templateLoader);
+
 			template = configuration.getTemplate(TEMPLATE_FILE);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -81,210 +105,316 @@ public class GeneratorService {
 	}
 
 	public GeneratorService buildData(ClassConfiguration superClass) {
-		
-		superClass.getClazz().forEach(actuelClass ->{
-			Map<String, Object> dataModel = new HashMap<String, Object>();
-			Field[] declaredFields = actuelClass.getClass().getDeclaredFields();
-			String[] fieldArray = new String[declaredFields.length];
-			
-			Constructor<?>[] declaredConstructors = actuelClass.getClass().getConstructors();
-			
-			Method[] declaredMethods = actuelClass.getClass().getDeclaredMethods();
-			String[] methodArray = new String[declaredMethods.length];
 
-			handleClassAttributtes(declaredFields, fieldArray);
-			
-			List<String> constructors = handleConstructors(declaredConstructors);
-		
-			handleClassMethods(declaredMethods, methodArray);
+		Map<String, ClazzPojo> dataModel = new HashMap<String, ClazzPojo>();
 
-			dataModel.put("package", actuelClass.getClass().getPackage()+";");
-			dataModel.put("className", actuelClass.getClass().getSimpleName());
-			dataModel.put("imports", importClassList);
-			dataModel.put("properties", fieldArray);
-			dataModel.put("constructors", constructors);
-			dataModel.put("methods", methodArray);
-			
-			configModel.add(dataModel);
-			
-		});
+		// BIND DATA with a POJO
+		bindWithPOJO(superClass, dataModel);
 
 		return engine;
 	}
 
-	private List<String> handleConstructors(Constructor<?>[] declaredConstructors) {
-		
-		StringBuffer buffer = new StringBuffer();
-		List<String> constructors = new ArrayList<>();
-		
-		for (Constructor<?> constructor : declaredConstructors) {
-			
-			int parameterCount = constructor.getParameterCount();
-			String modifier = Modifier.toString(constructor.getModifiers());
-			String type = constructor.getName();
-			
-			if(parameterCount == 0) { // TODO Bessere Lösung
-				
-				buffer.append(modifier)
-						.append(SPACE_1)
-						.append(extractType(type))
-						.append(PARANTHESIS_OPEN)
-						.append(PARANTHESIS_CLOSE)
-						.append(CURLY_BRACKET_OPEN)
-						.append(NEW_LINE)
-						.append(TAB)
-						.append(CURLY_BRACKET_CLOSE);
-				
-				constructors.add(buffer.toString());
-			}
-			
-			buffer.append(modifier)
-					.append(SPACE_1)
-					.append(extractType(type))
-					.append(PARANTHESIS_OPEN);
-			//System.out.println(constructor.getGenericParameterTypes().length);
-			
-			buffer.append(PARANTHESIS_CLOSE)
-					.append(CURLY_BRACKET_OPEN)
-					.append(NEW_LINE)
-					.append(TAB)
-					.append(CURLY_BRACKET_CLOSE)
-					;
-		}
-		return constructors;
-	}
+	private void bindWithPOJO(ClassConfiguration configClass, Map<String, ClazzPojo> dataModel) {
 
-	private void handleClassMethods(Method[] declaredMethods, String[] methodArray) {
-		
-		String classToImport;
-		for (int i = 0; i < methodArray.length; i++) {
+		for (Object actuelClass : configClass.getClazz()) {
 
-			StringBuffer signature = new StringBuffer();
-			StringBuffer parameter = new StringBuffer();
-			String type = declaredMethods[i].getGenericReturnType().getTypeName();
+			ClazzPojo clazzPojo = new ClazzPojo();
+			String className = actuelClass.getClass().getSimpleName();
+			String packageName = actuelClass.getClass().getPackage().getName();
 
-			signature.append(Modifier.toString(declaredMethods[i].getModifiers()))
-					.append(SPACE_1)
-					.append(extractType(type))
-					.append(SPACE_1)
-					.append(declaredMethods[i].getName())
-					.append(PARANTHESIS_OPEN);
+			clazzPojo.setPackageName(packageName);
+			clazzPojo.setImportStatments(importLibraryNodes(actuelClass.getClass()).getImportStatments());
+			clazzPojo.setClassName(className);
+			clazzPojo.setProperties(attributesPojoNodes(actuelClass.getClass()).getProperties());
+			clazzPojo.setConstructors(constructorsPojoNode(actuelClass.getClass()).getConstructors());
+			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
+			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
+			clazzPojo.setPojoMethods(methodsPojoNode(actuelClass.getClass()).getPojoMethods());
 
-			int parameterNumber = declaredMethods[i].getParameterCount();
-
-			if(parameterNumber != 0) {
-
-				for (int j = 0; j < declaredMethods[i].getGenericParameterTypes().length; j++) {
-
-					classToImport = declaredMethods[i].getGenericParameterTypes()[j].getTypeName();
-					addClasstoImport(importClassList, classToImport);
-
-					parameter.append(classToImport)
-							.append(SPACE_1)
-							.append(declaredMethods[i].getParameters()[j].getName());
-
-					String methodName = declaredMethods[i].getName().toLowerCase();
-
-					parameter = buildMethodParameters(fieldNames, parameter, methodName);
-				}
-			}
-
-			signature.append(extractType(parameter.toString()))
-					.append(PARANTHESIS_CLOSE)
-					.append(CURLY_BRACKET_OPEN)
-					.append(NEW_LINE)
-					.append(TAB)
-					.append(CURLY_BRACKET_CLOSE)
-					.append(NEW_LINE);
-
-
-			methodArray[i] = signature.toString();
-
+			dataModel.put("clazzPojo", clazzPojo);
+			configModel.put(actuelClass.getClass().getSimpleName(), dataModel);
+			dataModel = new HashMap<String, ClazzPojo>();
 
 		}
 	}
 
-	private void handleClassAttributtes(Field[] declaredFields, String[] fieldArray) {
-
-		String classToImport;
-		for (int i = 0; i < fieldArray.length; i++) {
-			
-			StringBuffer member = new StringBuffer();
-			String type = declaredFields[i].getGenericType().getTypeName();
-			
-			member.append(Modifier.toString(declaredFields[i].getModifiers()))
-					.append(SPACE_1)
-					.append(extractType(type))
-					.append(SPACE_1)
-					.append(declaredFields[i].getName());
-
-			fieldNames.add(declaredFields[i].getName());
-
-			classToImport = declaredFields[i].getType().getName();
-
-			addClasstoImport(importClassList, classToImport);
-			fieldArray[i] = member.toString();
-		}
+	private Field[] getFields(Class<?> clazz) {
+		Field[] allFields = clazz.getDeclaredFields();
+		return allFields;
 	}
 
-	private StringBuffer buildMethodParameters(List<String> fieldNames, StringBuffer parameter, String methodName) {
-		
-		//Handle parameters for setters
-		if(methodName.startsWith("set")) {
+	private Parameter[] getParameters(Method method) {
+		Parameter[] parameters = method.getParameters();
+		return parameters;
+	}
 
-			for (String field : fieldNames) {
-				if(methodName.contains(field.toLowerCase())) {
-					 String copy = parameter.toString().replace("arg0", field);
-					 parameter = new StringBuffer(copy);
+	private Method[] getMethods(Class<?> clazz) {
+		Method[] allDeclaredMethod = clazz.getDeclaredMethods();
+		return allDeclaredMethod;
+	}
+
+	private Constructor<?>[] getConstructors(Class<?> clazz) {
+		Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+		return declaredConstructors;
+	}
+
+	// Bind data using POJO Class
+
+	private ClazzPojo attributesPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+
+		List<Propertie> properties = new ArrayList<>();
+		List<String> importClazzes = new ArrayList<>();
+
+		for (Field field : getFields(clazz)) {
+
+			Propertie propertie = new Propertie();
+			String typeName = field.getType().getSimpleName();
+			String modifier = Modifier.toString(field.getModifiers());
+			String propertieName = field.getName();
+
+			propertie.setModifier(modifier);
+			propertie.setType(typeName);
+			propertie.setPropertieName(propertieName);
+			propertie.setClazzesToimport(importClazzes);
+
+			properties.add(propertie);
+
+		}
+
+		clazzPojo.setProperties(properties);
+
+		return clazzPojo;
+	}
+
+	private ClazzPojo importLibraryNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		Set<String> importStatments = new HashSet<>();
+		List<String> propImports = new ArrayList<>();
+		List<String> methodImports = new ArrayList<>();
+
+		Field[] fields = getFields(clazz);
+
+		for (Field field : fields) {
+
+			Class<?> fieldType = field.getType();
+
+			if (!ImportUtil.isNotImportable(fieldType)) {
+
+				String fieldTypeName = fieldType.getName();
+				if (!importStatments.contains(fieldTypeName)) {
+					propImports.add(fieldTypeName);
 				}
 			}
 		}
-		
-		//Handle other method's parameters
-		//coming soon...
-		
-		return parameter;
+
+		Method[] methods = getMethods(clazz);
+
+		for (Method method : methods) {
+			Class<?> returnType = method.getReturnType();
+			if (!ImportUtil.isNotImportable(returnType)) {
+				String typeName = returnType.getName();
+				if (!importStatments.contains(typeName)) {
+					methodImports.add(typeName);
+				}
+			}
+		}
+
+		if (!(importStatments.containsAll(propImports) && importStatments.containsAll(methodImports))) {
+			importStatments.addAll(propImports);
+			importStatments.addAll(methodImports);
+		}
+		clazzPojo.setImportStatments(importStatments);
+		return clazzPojo;
 	}
 
-	private void addClasstoImport(List<String> importClassList, String classToImport) {
-		if(!importClassList.contains(classToImport))
-			importClassList.add(classToImport);
+	private ClazzPojo constructorsPojoNode(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		List<ConstructorPojo> constructors = new ArrayList<>();
+
+		if (getConstructors(clazz).length == 0) {
+			clazzPojo.setNoConstructors(true);
+		}
+		clazzPojo.setNoConstructors(false);
+
+		for (Constructor<?> actualConstructor : getConstructors(clazz)) {
+
+			ConstructorPojo constructor = new ConstructorPojo();
+
+			String modifier = Modifier.toString(actualConstructor.getModifiers());
+			String name = actualConstructor.getName().replace(clazz.getPackageName() + ".", "");
+
+			constructor.setModifier(modifier);
+			constructor.setConstructorName(name);
+
+			if (actualConstructor.isVarArgs()) {
+
+				constructor.setNoArgs(true);
+				constructor.setConstructorParameters(null);
+
+				constructors.add(constructor);
+			} else {
+				constructor.setNoArgs(false);
+
+				List<String> parameters = new ArrayList<>();
+
+				for (Parameter actualParameter : actualConstructor.getParameters()) {
+					ParameterPojo parameter = new ParameterPojo();
+					parameter.setType(actualParameter.getType().getSimpleName());
+					parameter.setParamName(actualParameter.getName());
+					parameters.add(parameter.templateString());
+				}
+				constructor.setConstructorParameters(parameters);
+				constructors.add(constructor);
+			}
+
+			clazzPojo.setConstructors(constructors);
+		}
+
+		return clazzPojo;
 	}
 
-	private String extractType(String type) {
-		return type.substring(type.lastIndexOf('.')+1);
+	private ClazzPojo gettersPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+
+		List<GetterClazz> getters = new ArrayList<>();
+
+		for (Method method : getMethods(clazz)) {
+			GetterClazz getter = new GetterClazz();
+			if (isGetter(method)) {
+
+				String modifier = Modifier.toString(method.getModifiers());
+				String returnType = method.getReturnType().getSimpleName();
+				String methodName = method.getName();
+
+				getter.setModifier(modifier);
+				getter.setReturnType(returnType);
+				getter.setMethodName(methodName);
+				getter.setFieldName(retrieveFieldName(method));
+
+				getters.add(getter);
+			}
+		}
+		clazzPojo.setGetters(getters);
+
+		return clazzPojo;
 	}
 
-	public void  writeFile(){
-		Writer file=null;
+	private ClazzPojo settersPojoNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+
+		List<SetterClazz> setters = new ArrayList<>();
+
+		for (Method method : getMethods(clazz)) {
+			SetterClazz setter = new SetterClazz();
+			if (isSetter(method)) {
+
+				String modifier = Modifier.toString(method.getModifiers());
+				String returnType = method.getReturnType().getSimpleName();
+				String methodName = method.getName();
+				Parameter parameter = getParameters(method)[0];
+				String paramType = parameter.getType().getSimpleName();
+				String paramName = retrieveFieldName(method);
+				paramName = unCapFirstLetter(paramName);
+
+				setter.setModifier(modifier);
+				setter.setReturnType(returnType);
+				setter.setMethodName(methodName);
+				setter.setFieldName(unCapFirstLetter(retrieveFieldName(method)));
+				setter.setParamType(paramType);
+				setter.setParamName(paramName);
+
+				setters.add(setter);
+			}
+			clazzPojo.setSetters(setters);
+		}
+		return clazzPojo;
+	}
+
+	private ClazzPojo methodsPojoNode(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		List<PojoMethod> pojoMethods = new ArrayList<>();
+
+		if (getMethods(clazz).length == 0) {
+			clazzPojo.setNoMethods(true);
+		}
+		clazzPojo.setNoMethods(false);
+
+		for (Method actualMethod : getMethods(clazz)) {
+
+			if (!isGetter(actualMethod) && !isSetter(actualMethod)) {
+				PojoMethod method = new PojoMethod();
+				String modifier = Modifier.toString(actualMethod.getModifiers());
+				String methodName = actualMethod.getName();
+				String returnType = actualMethod.getReturnType().getSimpleName();
+
+				method.setModifier(modifier);
+				method.setMethodName(methodName);
+				method.setReturnType(returnType);
+
+				if (actualMethod.isVarArgs()) {
+
+					method.setNoArgs(true);
+					method.setMethodParameters(null);
+
+					pojoMethods.add(method);
+				} else {
+					method.setNoArgs(false);
+					List<String> methodParameters = new ArrayList<>();
+
+					for (Parameter actuelParameter : getParameters(actualMethod)) {
+						ParameterPojo parameter = new ParameterPojo();
+						parameter.setType(actuelParameter.getType().getSimpleName());
+						parameter.setParamName(actuelParameter.getName());
+						methodParameters.add(parameter.templateString());
+					}
+					method.setMethodParameters(methodParameters);
+					pojoMethods.add(method);
+				}
+				clazzPojo.setPojoMethods(pojoMethods);
+			}
+
+		}
+		return clazzPojo;
+	}
+
+	public void writeFile() {
+		Writer file = Writer.nullWriter();
 
 		try {
-			
-			for (Map<String, Object> model : configModel) {
-				
-				String packageName = model.get("package").toString();
-				String className = model.get("className").toString();
-				
-				packageName = packageName.replace(";", File.separator);
+
+			for (Map.Entry<String, Map<String, ClazzPojo>> entry : configModel.entrySet()) {
+
+				String packageName = "";
+				String className = "";
+				ClazzPojo pojo = entry.getValue().get("clazzPojo");
+
+				packageName = pojo.getPackageName();
+				className = pojo.getClassName(); // pojo.getClassName()
 
 				packageName = packageName.replace("package ", "");
-				packageName = GENERATED+packageName;
+
+				packageName = GENERATED + packageName + "/";
 
 				new File(packageName).mkdirs();
-				file = new FileWriter (new File(packageName+className +".java"));
+				file = new FileWriter(new File(packageName + className + ".java"));
 
-				template.process(model, file);
+				template.process(entry.getValue(), file);
 				file.flush();
 			}
-			
-			System.out.println("Generation Success");
 
-		}catch (Exception e) {
-		// TODO Auto-generated catch block
+			System.out.println("Generation Success !!!");
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		finally
-		{
+		} finally {
 
 			try {
 				file.close();
@@ -296,5 +426,35 @@ public class GeneratorService {
 
 	}
 
-	
+	private String unCapFirstLetter(String paramName) {
+		paramName = Character.toLowerCase(paramName.charAt(0)) + paramName.substring(1);
+		return paramName;
+	}
+
+	private boolean isGetter(Method method) {
+		if (Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 0) {
+			if (method.getName().matches("^get[A-Z].*") && !method.getReturnType().equals(void.class))
+				return true;
+			if (method.getName().matches("^is[A-Z].*") && method.getReturnType().equals(boolean.class))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isSetter(Method method) {
+		return Modifier.isPublic(method.getModifiers()) && method.getReturnType().equals(void.class)
+				&& method.getParameterTypes().length == 1 && method.getName().matches("^set[A-Z].*");
+	}
+
+	private String retrieveFieldName(Method method) {
+		String methodName = "";
+		if (isGetter(method)) {
+			methodName = method.getName().replaceFirst("get", "");
+		}
+		if (isSetter(method)) {
+			methodName = method.getName().replaceFirst("set", "");
+		}
+		return methodName;
+	}
+
 }

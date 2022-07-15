@@ -2,8 +2,6 @@ package services;
 
 import java.util.List;
 
-import root.Pronto;
-
 public class ClassConfiguration {
 	
 	private List<Object> clazz;

@@ -3,7 +3,7 @@ package Ue2;
 
 import root.Pronto;
 
-public aspect PizzaVO extends Uebung02{
+public aspect pizzaAspect extends Uebung02{
 	
 	declare parents : Ue1.PizzaVO extends Pronto;
 
