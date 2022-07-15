@@ -23,39 +23,39 @@ public class CustomerVO {
 	}	
 	
 	
-	public void setLastName(String LastName){
-		this.lastName = LastName;
+	public void setGender(String gender){
+		this.gender = gender;
 	}
-	public void setGender(String Gender){
-		this.gender = Gender;
+	public void setLastName(String lastName){
+		this.lastName = lastName;
 	}
-	public void setFirstName(String FirstName){
-		this.firstName = FirstName;
+	public void setFirstName(String firstName){
+		this.firstName = firstName;
 	}
-	public void setDateOfBirth(LocalDate DateOfBirth){
-		this.dateOfBirth = DateOfBirth;
+	public void setDateOfBirth(LocalDate dateOfBirth){
+		this.dateOfBirth = dateOfBirth;
 	}
 	
 	public String getLastName(){
-		return lastName;
+		return LastName;
 	}
 	public String getFirstName(){
-		return firstName;
-	}
-	public LocalDate getDateOfBirth(){
-		return dateOfBirth;
+		return FirstName;
 	}
 	public String getGender(){
-		return gender;
+		return Gender;
+	}
+	public LocalDate getDateOfBirth(){
+		return DateOfBirth;
 	}
 	
 	public String toString(){
 		
 	}	
-	public String dobToString(){
+	public short calculateAge(LocalDate arg0){
 		
 	}	
-	public short calculateAge(LocalDate arg0){
+	public String dobToString(){
 		
 	}	
 }

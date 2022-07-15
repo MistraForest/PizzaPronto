@@ -19,24 +19,24 @@ public class ChefVO {
 	}	
 	
 	
-	public void setColorApron(Color ColorApron){
-		this.colorApron = ColorApron;
+	public void setColorApron(Color colorApron){
+		this.colorApron = colorApron;
 	}
-	public void setLastName(String LastName){
-		this.lastName = LastName;
+	public void setLastName(String lastName){
+		this.lastName = lastName;
 	}
-	public void setFirstName(String FirstName){
-		this.firstName = FirstName;
+	public void setFirstName(String firstName){
+		this.firstName = firstName;
 	}
 	
 	public String getLastName(){
-		return lastName;
-	}
-	public Color getColorApron(){
-		return colorApron;
+		return LastName;
 	}
 	public String getFirstName(){
-		return firstName;
+		return FirstName;
+	}
+	public Color getColorApron(){
+		return ColorApron;
 	}
 	
 	public String toString(){

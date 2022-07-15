@@ -19,24 +19,24 @@ public class PizzaVO {
 	}	
 	
 	
-	public void setName(String Name){
-		this.name = Name;
+	public void setName(String name){
+		this.name = name;
 	}
-	public void setIngredients(String[] Ingredients){
-		this.ingredients = Ingredients;
+	public void setPrice(float price){
+		this.price = price;
 	}
-	public void setPrice(float Price){
-		this.price = Price;
+	public void setIngredients(String[] ingredients){
+		this.ingredients = ingredients;
 	}
 	
 	public String getName(){
-		return name;
+		return Name;
 	}
 	public float getPrice(){
-		return price;
+		return Price;
 	}
 	public String[] getIngredients(){
-		return ingredients;
+		return Ingredients;
 	}
 	
 	public String toString(){

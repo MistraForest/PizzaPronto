@@ -18,7 +18,6 @@ public class ${clazzPojo.className} {
 	<#list clazzPojo.constructors as constructor>
 	<#if constructor.noArgs == true>
 	${constructor.modifier} ${constructor.constructorName}(){
-		
 	}
 	<#else>
 	${constructor.modifier} ${constructor.constructorName}(<#list constructor.constructorParameters as param>${param}<#sep>, </#list>){
@@ -31,13 +30,13 @@ public class ${clazzPojo.className} {
 	
 	<#list clazzPojo.setters as setter>
 	${setter.modifier} ${setter.returnType} ${setter.methodName}(${setter.paramType} ${setter.paramName}){
-		this.${setter.fieldName?uncap_first} = ${setter.paramName};
+		this.${setter.fieldName} = ${setter.paramName};
 	}
 	</#list>
 	
 	<#list clazzPojo.getters as getter>
 	${getter.modifier} ${getter.returnType} ${getter.methodName}(){
-		return ${getter.fieldName?uncap_first};
+		return ${getter.fieldName};
 	}
 	</#list>
 	

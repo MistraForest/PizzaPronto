@@ -275,11 +275,12 @@ public class GeneratorService {
 				Parameter parameter = getParameters(method)[0];
 				String paramType = parameter.getType().getSimpleName();
 				String paramName = retrieveFieldName(method);
-
+				paramName = unCapFirstLetter(paramName);
+				
 				setter.setModifier(modifier);
 				setter.setReturnType(returnType);
 				setter.setMethodName(methodName);
-				setter.setFieldName(retrieveFieldName(method));
+				setter.setFieldName(unCapFirstLetter(retrieveFieldName(method)));
 				setter.setParamType(paramType);
 				setter.setParamName(paramName);
 
@@ -288,6 +289,11 @@ public class GeneratorService {
 			clazzPojo.setSetters(setters);
 		}
 		return clazzPojo;
+	}
+
+	private String unCapFirstLetter(String paramName) {
+		paramName = Character.toLowerCase(paramName.charAt(0)) + paramName.substring(1);
+		return paramName;
 	}
 
 	private ClazzPojo methodsPojoNode(Class<?> clazz) {
