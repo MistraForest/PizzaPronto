@@ -1,5 +1,6 @@
 package services.generator;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -113,7 +115,6 @@ public class GeneratorService {
 	}
 
 	private void bindWithPOJO(ClassConfiguration configClass, Map<String, ClazzPojo> dataModel) {
-		// List<ClazzPojo> pojos = new ArrayList<>();
 
 		for (Object actuelClass : configClass.getClazz()) {
 
@@ -122,6 +123,7 @@ public class GeneratorService {
 			String packageName = actuelClass.getClass().getPackage().getName();
 
 			clazzPojo.setPackageName(packageName);
+			clazzPojo.setImportStatments(importLibraryNodes(actuelClass.getClass()).getImportStatments());
 			clazzPojo.setClassName(className);
 			clazzPojo.setProperties(attributesPojoNodes(actuelClass.getClass()).getProperties());
 			clazzPojo.setConstructors(constructorsPojoNode(actuelClass.getClass()).getConstructors());
@@ -166,15 +168,16 @@ public class GeneratorService {
 		List<String> importClazzes = new ArrayList<>();
 
 		for (Field field : getFields(clazz)) {
-			
+
 			Propertie propertie = new Propertie();
-			String type = field.getType().getSimpleName();
+			String typeName = field.getType().getSimpleName();
 			String modifier = Modifier.toString(field.getModifiers());
 			String propertieName = field.getName();
-			
+
 			propertie.setModifier(modifier);
-			propertie.setType(type);
+			propertie.setType(typeName);
 			propertie.setPropertieName(propertieName);
+			propertie.setClazzesToimport(importClazzes);
 
 			properties.add(propertie);
 
@@ -182,6 +185,48 @@ public class GeneratorService {
 
 		clazzPojo.setProperties(properties);
 
+		return clazzPojo;
+	}
+
+	private ClazzPojo importLibraryNodes(Class<?> clazz) {
+
+		ClazzPojo clazzPojo = new ClazzPojo();
+		Set<String> importStatments = new HashSet<>();
+		List<String> propImports = new ArrayList<>();
+		List<String> methodImports = new ArrayList<>();
+
+		Field[] fields = getFields(clazz);
+
+		for (Field field : fields) {
+
+			Class<?> fieldType = field.getType();
+
+			if (!ImportUtil.isNotImportable(fieldType)) {
+
+				String fieldTypeName = fieldType.getName();
+				if (!importStatments.contains(fieldTypeName)) {
+					propImports.add(fieldTypeName);
+				}
+			}
+		}
+
+		Method[] methods = getMethods(clazz);
+
+		for (Method method : methods) {
+			Class<?> returnType = method.getReturnType();
+			if (!ImportUtil.isNotImportable(returnType)) {
+				String typeName = returnType.getName();
+				if (!importStatments.contains(typeName)) {
+					methodImports.add(typeName);
+				}
+			}
+		}
+
+		if (!(importStatments.containsAll(propImports) && importStatments.containsAll(methodImports))) {
+			importStatments.addAll(propImports);
+			importStatments.addAll(methodImports);
+		}
+		clazzPojo.setImportStatments(importStatments);
 		return clazzPojo;
 	}
 
@@ -276,7 +321,7 @@ public class GeneratorService {
 				String paramType = parameter.getType().getSimpleName();
 				String paramName = retrieveFieldName(method);
 				paramName = unCapFirstLetter(paramName);
-				
+
 				setter.setModifier(modifier);
 				setter.setReturnType(returnType);
 				setter.setMethodName(methodName);
@@ -289,11 +334,6 @@ public class GeneratorService {
 			clazzPojo.setSetters(setters);
 		}
 		return clazzPojo;
-	}
-
-	private String unCapFirstLetter(String paramName) {
-		paramName = Character.toLowerCase(paramName.charAt(0)) + paramName.substring(1);
-		return paramName;
 	}
 
 	private ClazzPojo methodsPojoNode(Class<?> clazz) {
@@ -386,6 +426,11 @@ public class GeneratorService {
 
 	}
 
+	private String unCapFirstLetter(String paramName) {
+		paramName = Character.toLowerCase(paramName.charAt(0)) + paramName.substring(1);
+		return paramName;
+	}
+
 	private boolean isGetter(Method method) {
 		if (Modifier.isPublic(method.getModifiers()) && method.getParameterTypes().length == 0) {
 			if (method.getName().matches("^get[A-Z].*") && !method.getReturnType().equals(void.class))
@@ -410,16 +455,6 @@ public class GeneratorService {
 			methodName = method.getName().replaceFirst("set", "");
 		}
 		return methodName;
-	}
-
-
-	private void addClasstoImport(List<String> importClassList, String classToImport) {
-		if (!importClassList.contains(classToImport))
-			importClassList.add(classToImport);
-	}
-
-	private String extractType(String type) {
-		return type.substring(type.lastIndexOf('.') + 1);
 	}
 
 }

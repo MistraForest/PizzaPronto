@@ -3,7 +3,7 @@
 
 package Ue1;
 
-
+import java.time.LocalDate;
 
 public class CustomerVO {
 
@@ -23,11 +23,11 @@ public class CustomerVO {
 	}	
 	
 	
-	public void setGender(String gender){
-		this.gender = gender;
-	}
 	public void setLastName(String lastName){
 		this.lastName = lastName;
+	}
+	public void setGender(String gender){
+		this.gender = gender;
 	}
 	public void setFirstName(String firstName){
 		this.firstName = firstName;
@@ -52,10 +52,10 @@ public class CustomerVO {
 	public String toString(){
 		
 	}	
-	public short calculateAge(LocalDate arg0){
+	public String dobToString(){
 		
 	}	
-	public String dobToString(){
+	public short calculateAge(LocalDate arg0){
 		
 	}	
 }

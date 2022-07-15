@@ -4,7 +4,6 @@
 package Ue1;
 
 
-
 public class PizzaVO {
 
 	private String name;
@@ -22,11 +21,11 @@ public class PizzaVO {
 	public void setName(String name){
 		this.name = name;
 	}
-	public void setPrice(float price){
-		this.price = price;
-	}
 	public void setIngredients(String[] ingredients){
 		this.ingredients = ingredients;
+	}
+	public void setPrice(float price){
+		this.price = price;
 	}
 	
 	public String getName(){

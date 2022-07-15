@@ -5,25 +5,29 @@ import java.util.Map;
 
 public class ImportUtil {
 	
-	private static final Map<Class<?>, Class<?>> IMPORT_NOT_MAP;
+	private static final Map<Class<?>, String> IMPORT_NOT_MAP;
 	
 	static {
-		IMPORT_NOT_MAP = new HashMap<Class<?>, Class<?>>();
-		IMPORT_NOT_MAP.put(Integer.class, int.class);
-		IMPORT_NOT_MAP.put(Byte.class, byte.class);
-		IMPORT_NOT_MAP.put(Character.class, char.class);
-		IMPORT_NOT_MAP.put(Boolean.class, boolean.class);
-		IMPORT_NOT_MAP.put(Double.class, double.class);
-		IMPORT_NOT_MAP.put(Float.class, float.class);
-		IMPORT_NOT_MAP.put(Long.class, long.class);
-		IMPORT_NOT_MAP.put(Short.class, short.class);
-		IMPORT_NOT_MAP.put(Void.class, void.class);
-		IMPORT_NOT_MAP.put(String.class, String.class);
-		IMPORT_NOT_MAP.put(String[].class, String[].class);
+		IMPORT_NOT_MAP = new HashMap<Class<?>, String>();
+		IMPORT_NOT_MAP.put(Integer.class, Integer.class.getSimpleName());
+		IMPORT_NOT_MAP.put(int.class, int.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Byte.class, byte.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Character.class, char.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Boolean.class, boolean.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Double.class, double.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Float.class, float.class.getSimpleName());
+		IMPORT_NOT_MAP.put(float.class, float.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Long.class, long.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Short.class, Short.class.getSimpleName());
+		IMPORT_NOT_MAP.put(short.class, short.class.getSimpleName());
+		IMPORT_NOT_MAP.put(Void.class, Void.class.getSimpleName());
+		IMPORT_NOT_MAP.put(void.class, void.class.getSimpleName());
+		IMPORT_NOT_MAP.put(String.class, String.class.getSimpleName());
+		IMPORT_NOT_MAP.put(String[].class, String[].class.getSimpleName());
 	}
 	
-	public static boolean isImportable(Object object) {
-	    return IMPORT_NOT_MAP.containsKey(object.getClass());
+	public static boolean isNotImportable(Class<?> object) {
+	    return IMPORT_NOT_MAP.containsKey(object);
 	}
 	
 	public static boolean isWiderPrimitive(Object object) {

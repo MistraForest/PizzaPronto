@@ -2,20 +2,26 @@
 <# BINDING ELEMENTS WITH POJO CLASS>
 <#assign pojo = clazzPojo >
 
-package ${clazzPojo.packageName};
+package ${pojo.packageName};
 
+<#if pojo.importEmpty == true>
+//No import needed
+<#else> 
+<#list pojo.importStatments as import>
+import ${import};
+</#list>
+</#if>
 
+public class ${pojo.className} {
 
-public class ${clazzPojo.className} {
-
-	<#list clazzPojo.properties as propertie>
+	<#list pojo.properties as propertie>
 	${propertie.modifier} ${propertie.type} ${propertie.propertieName};
 	</#list>
 	
-	<#if clazzPojo.noConstructors == true>
+	<#if pojo.noConstructors == true>
 	//No constructors declared
 	<#else>	
-	<#list clazzPojo.constructors as constructor>
+	<#list pojo.constructors as constructor>
 	<#if constructor.noArgs == true>
 	${constructor.modifier} ${constructor.constructorName}(){
 	}
@@ -28,22 +34,22 @@ public class ${clazzPojo.className} {
 	
 	</#if>
 	
-	<#list clazzPojo.setters as setter>
+	<#list pojo.setters as setter>
 	${setter.modifier} ${setter.returnType} ${setter.methodName}(${setter.paramType} ${setter.paramName}){
 		this.${setter.fieldName} = ${setter.paramName};
 	}
 	</#list>
 	
-	<#list clazzPojo.getters as getter>
+	<#list pojo.getters as getter>
 	${getter.modifier} ${getter.returnType} ${getter.methodName}(){
 		return ${getter.fieldName};
 	}
 	</#list>
 	
-	<#if clazzPojo.noMethods == true>
+	<#if pojo.noMethods == true>
 	//No methods declared
 	<#else>
-	<#list clazzPojo.pojoMethods as method>
+	<#list pojo.pojoMethods as method>
 	${method.modifier} ${method.returnType} ${method.methodName}(<#list method.methodParameters as param>${param}<#sep>, </#list>){
 		
 	}	
