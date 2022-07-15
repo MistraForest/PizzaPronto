@@ -3,49 +3,50 @@
 
 package Ue1;
 
+import java.time.LocalDate;
 
 public class CustomerVO {
 
-	private java.lang.String lastName;
-	private java.lang.String firstName;
-	private java.lang.String gender;
-	private java.time.LocalDate dateOfBirth;
+	private String lastName;
+	private String firstName;
+	private String gender;
+	private LocalDate dateOfBirth;
 	
-	public Ue1.CustomerVO(){
+	public CustomerVO(){
 		
 	}	
-	public Ue1.CustomerVO(String arg0, String arg1, LocalDate arg2){
+	public CustomerVO(String arg0, String arg1, LocalDate arg2){
 		
 	}	
-	public Ue1.CustomerVO(String arg0, String arg1, String arg2, LocalDate arg3){
+	public CustomerVO(String arg0, String arg1, String arg2, LocalDate arg3){
 		
 	}	
 	
 	
-	public void setGender(java.lang.String arg0){
-		this.gender = arg0;
+	public void setLastName(String lastName){
+		this.lastName = lastName;
 	}
-	public void setLastName(java.lang.String arg0){
-		this.lastName = arg0;
+	public void setGender(String gender){
+		this.gender = gender;
 	}
-	public void setFirstName(java.lang.String arg0){
-		this.firstName = arg0;
+	public void setFirstName(String firstName){
+		this.firstName = firstName;
 	}
-	public void setDateOfBirth(java.time.LocalDate arg0){
-		this.dateOfBirth = arg0;
+	public void setDateOfBirth(LocalDate dateOfBirth){
+		this.dateOfBirth = dateOfBirth;
 	}
 	
-	public String getFirstName(){
-		return firstName;
-	}
 	public String getLastName(){
-		return lastName;
+		return LastName;
+	}
+	public String getFirstName(){
+		return FirstName;
 	}
 	public String getGender(){
-		return gender;
+		return Gender;
 	}
 	public LocalDate getDateOfBirth(){
-		return dateOfBirth;
+		return DateOfBirth;
 	}
 	
 	public String toString(){
@@ -54,7 +55,7 @@ public class CustomerVO {
 	public String dobToString(){
 		
 	}	
-	public short calculateAge(java.time.LocalDate arg0){
+	public short calculateAge(LocalDate arg0){
 		
 	}	
 }

@@ -1,6 +1,7 @@
 package PojoPronto;
 
 import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ public class ClazzPojo {
 
 	private boolean noMethods;
 	private boolean noConstructors;
+	private boolean importEmpty;
 	private String packageName;
 	private String className;
 	private List<Propertie> properties;
@@ -18,6 +20,7 @@ public class ClazzPojo {
 	private List<SetterClazz> setters;
 	private List<ConstructorPojo> constructors;
 	private List<PojoMethod> pojoMethods;
+	private Set<String> importStatments;
 
 	public boolean isNoMethods() {
 		return noMethods;
@@ -33,6 +36,14 @@ public class ClazzPojo {
 
 	public void setNoConstructors(boolean noConstructors) {
 		this.noConstructors = noConstructors;
+	}
+
+	public boolean isImportEmpty() {
+		return importEmpty;
+	}
+
+	public void setImportEmpty(boolean importEmpty) {
+		this.importEmpty = importEmpty;
 	}
 
 	public String getPackageName() {
@@ -89,6 +100,14 @@ public class ClazzPojo {
 
 	public void setPojoMethods(List<PojoMethod> pojoMethods) {
 		this.pojoMethods = pojoMethods;
+	}
+
+	public Set<String> getImportStatments() {
+		return importStatments;
+	}
+
+	public void setImportStatments(Set<String> importStatments) {
+		this.importStatments = importStatments;
 	}
 
 	@Override
