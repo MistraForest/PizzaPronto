@@ -1,5 +1,7 @@
 package PojoPronto;
 
+import java.util.List;
+
 public class Propertie {
 
 	@Override
@@ -11,7 +13,7 @@ public class Propertie {
 	private String modifier;
 	private String type;
 	private String propertieName;
-	private String clazzToimport;
+	private List<String> clazzToimport;
 
 	public String getModifier() {
 		return modifier;
@@ -37,11 +39,11 @@ public class Propertie {
 		this.propertieName = propertieName;
 	}
 
-	public String getClazzToimport() {
+	public List<String> getClazzToimport() {
 		return clazzToimport;
 	}
 
-	public void setClazzToimport(String clazzToimport) {
+	public void setClazzToimport(List<String> clazzToimport) {
 		this.clazzToimport = clazzToimport;
 	}
 }

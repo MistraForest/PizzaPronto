@@ -18,6 +18,7 @@ public class ClazzPojo {
 	private List<SetterClazz> setters;
 	private List<ConstructorPojo> constructors;
 	private List<PojoMethod> pojoMethods;
+	private List<String> importStatments;
 
 	public boolean isNoMethods() {
 		return noMethods;
@@ -89,6 +90,14 @@ public class ClazzPojo {
 
 	public void setPojoMethods(List<PojoMethod> pojoMethods) {
 		this.pojoMethods = pojoMethods;
+	}
+
+	public List<String> getImportStatments() {
+		return importStatments;
+	}
+
+	public void setImportStatments(List<String> importStatments) {
+		this.importStatments = importStatments;
 	}
 
 	@Override

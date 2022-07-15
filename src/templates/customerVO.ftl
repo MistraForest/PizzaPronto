@@ -5,6 +5,7 @@
 package ${clazzPojo.packageName};
 
 
+
 public class ${clazzPojo.className} {
 
 	<#list clazzPojo.properties as propertie>

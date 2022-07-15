@@ -4,38 +4,39 @@
 package Ue1;
 
 
+
 public class PizzaVO {
 
-	private java.lang.String name;
-	private java.lang.String[] ingredients;
+	private String name;
+	private String[] ingredients;
 	private float price;
 	
-	public Ue1.PizzaVO(String arg0, String[] arg1, float arg2){
+	public PizzaVO(String arg0, String[] arg1, float arg2){
 		
 	}	
-	public Ue1.PizzaVO(){
+	public PizzaVO(){
 		
 	}	
 	
 	
-	public void setName(String arg0){
-		this.name = arg0;
+	public void setName(String Name){
+		this.name = Name;
 	}
-	public void setIngredients(String[] arg0){
-		this.ingredients = arg0;
+	public void setIngredients(String[] Ingredients){
+		this.ingredients = Ingredients;
 	}
-	public void setPrice(float arg0){
-		this.price = arg0;
+	public void setPrice(float Price){
+		this.price = Price;
 	}
 	
 	public String getName(){
 		return name;
 	}
-	public String[] getIngredients(){
-		return ingredients;
-	}
 	public float getPrice(){
 		return price;
+	}
+	public String[] getIngredients(){
+		return ingredients;
 	}
 	
 	public String toString(){
