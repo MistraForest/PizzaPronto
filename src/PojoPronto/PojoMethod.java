@@ -8,6 +8,7 @@ public class PojoMethod {
 	private String modifier;
 	private String returnType;
 	private String methodName;
+	private Object body;
 	private List<String> methodParameters;
 
 	public boolean isNoArgs() {
@@ -42,6 +43,14 @@ public class PojoMethod {
 		this.methodName = methodName;
 	}
 
+	public Object getBody() {
+		return body;
+	}
+
+	public void setBody(Object body) {
+		this.body = body;
+	}
+
 	public List<String> getMethodParameters() {
 		return methodParameters;
 	}
@@ -50,4 +59,10 @@ public class PojoMethod {
 		this.methodParameters = methodParameters;
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+				"PojoMethod {\nnoArgs=%s, \nmodifier=%s, \nreturnType=%s, \nmethodName=%s, \nbody=%s, \nmethodParameters=%s\n}",
+				noArgs, modifier, returnType, methodName, body, methodParameters);
+	}
 }

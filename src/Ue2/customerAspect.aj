@@ -3,6 +3,7 @@ package Ue2;
 
 import java.time.LocalDate;
 import java.time.Period;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 
 import root.Pronto;
 
@@ -11,6 +12,7 @@ public aspect customerAspect extends Uebung02{
 	declare parents : Ue1.CustomerVO extends Pronto;
 	
 	static Ue1.CustomerVO customer = new Ue1.CustomerVO();
+	
 	
 	pointcut doToString(Ue1.CustomerVO customer): args(customer) &&
 			execution (void TestPizzaPronto_U2.print(Pronto));
