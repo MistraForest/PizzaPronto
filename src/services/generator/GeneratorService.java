@@ -135,7 +135,6 @@ public class GeneratorService {
 		return declaredConstructors;
 	}
 
-	// Bind data using POJO Class
 
 	private ClazzPojo attributesPojoNodes(Class<?> clazz) {
 
@@ -380,7 +379,7 @@ public class GeneratorService {
 				ClazzPojo pojo = entry.getValue().get("clazzPojo");
 
 				packageName = pojo.getPackageName();
-				className = pojo.getClassName(); // pojo.getClassName()
+				className = pojo.getClassName();
 
 				packageName = packageName.replace("package ", "");
 
