@@ -3,11 +3,13 @@ package PojoPronto;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
+@JsonAppend
 public class ClazzPojo {
 
 	private boolean noMethods;

@@ -23,11 +23,11 @@ public class CustomerVO {
 	}	
 	
 	
-	public void setLastName(String lastName){
-		this.lastName = lastName;
-	}
 	public void setGender(String gender){
 		this.gender = gender;
+	}
+	public void setLastName(String lastName){
+		this.lastName = lastName;
 	}
 	public void setFirstName(String firstName){
 		this.firstName = firstName;
@@ -42,11 +42,11 @@ public class CustomerVO {
 	public String getFirstName(){
 		return FirstName;
 	}
-	public String getGender(){
-		return Gender;
-	}
 	public LocalDate getDateOfBirth(){
 		return DateOfBirth;
+	}
+	public String getGender(){
+		return Gender;
 	}
 	
 	public String toString(){
