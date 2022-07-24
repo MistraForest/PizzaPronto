@@ -2,95 +2,57 @@
 <# BINDING ELEMENTS WITH POJO CLASS>
 <#assign pojo = clazzPojo >
 
-package ${clazzPojo.packageName};
+package ${pojo.packageName};
 
+<#if pojo.importEmpty == true>
+//No import needed
+<#else> 
+<#list pojo.importStatments as import>
+import ${import};
+</#list>
+</#if>
 
-public class ${clazzPojo.className} {
+public class ${pojo.className} {
 
-	<#list clazzPojo.properties as propertie>
+	<#list pojo.properties as propertie>
 	${propertie.modifier} ${propertie.type} ${propertie.propertieName};
 	</#list>
 	
-	
-	<#list clazzPojo.constructors as constructor>
+	<#if pojo.noConstructors == true>
+	//No constructors declared
+	<#else>	
+	<#list pojo.constructors as constructor>
 	<#if constructor.noArgs == true>
 	${constructor.modifier} ${constructor.constructorName}(){
-		
 	}
 	<#else>
 	${constructor.modifier} ${constructor.constructorName}(<#list constructor.constructorParameters as param>${param}<#sep>, </#list>){
 		
-	}
+	}	
+	</#if>
+	</#list>
 	
 	</#if>
-
-	</#list>
 	
-	<#list clazzPojo.setters as setter>
+	<#list pojo.setters as setter>
 	${setter.modifier} ${setter.returnType} ${setter.methodName}(${setter.paramType} ${setter.paramName}){
-		this.${setter.fieldName?uncap_first} = ${setter.paramName};
+		this.${setter.fieldName} = ${setter.paramName};
 	}
 	</#list>
 	
-	<#list clazzPojo.getters as getter>
+	<#list pojo.getters as getter>
 	${getter.modifier} ${getter.returnType} ${getter.methodName}(){
-		return ${getter.fieldName?uncap_first};
+		return ${getter.fieldName};
 	}
 	</#list>
+	
+	<#if pojo.noMethods == true>
+	//No methods declared
+	<#else>
+	<#list pojo.pojoMethods as method>
+	${method.modifier} ${method.returnType} ${method.methodName}(<#list method.methodParameters as param>${param}<#sep>, </#list>){
+		
+	}	
+	</#list>
+	</#if>
 }
-
-<#-- <#list pojos as pojo>
-	${pojo.className}
-</#list> -->
-
-
-<#--<#--
-
-<# BINDING ELEMENTS WITH OBJECT NODE (String)>
-<#assign s = object >
-	 
-	
-package ${s.package?replace("\"", "")};
-public class ${s.className?replace("\"", "")} {
-	
-	${s.Getters[14..19]} ${s.Getters[36..40]} ${s.Getters[51..63]}(){
-		return ${s.Getters[79..88]?uncap_first};
-	}
-	
-	<#--  
-	${set_modifier} ${set_returnType} ${setter}(${paramType} ${param}){
-   		this.${field?uncap_first} = ${param};
-	}
-	
-	${getModifier} ${get_returnType} ${getter}(){
-   		return ${val?uncap_first};
-	}
-	
-}
-
-
-<# FIRST BINDING METHODS>
-${package};
-
-<#list someImports as import>
-import ${import};
-</#list>
-
-public class ${className} {
-
-	<#list props as propertie>
-    ${propertie};
-	</#list>
-	
-	<#list constrs as constructor>
-    ${constructor}
-	</#list>
-	
-	<#list meths as method>
-    ${method}
-	</#list>
-	
-}
--->
-	
-	

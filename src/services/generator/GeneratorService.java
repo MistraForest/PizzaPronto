@@ -1,7 +1,7 @@
 package services.generator;
 
-import java.awt.Color;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -10,30 +10,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
-import javax.swing.plaf.ListUI;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MappingJsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.visitor.VoidVisitor;
 
 import PojoPronto.ClazzPojo;
 import PojoPronto.ConstructorPojo;
@@ -42,23 +30,14 @@ import PojoPronto.ParameterPojo;
 import PojoPronto.PojoMethod;
 import PojoPronto.Propertie;
 import PojoPronto.SetterClazz;
-import Ue1.ChefVO;
-import Ue1.CustomerVO;
-import Ue1.PizzaVO;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
-import lombok.NonNull;
-import lombok.val;
-import root.Pronto;
 import services.ClassConfiguration;
 import utils.ImportUtil;
-import utils.JsonNodeBuilder;
-
-import static utils.JsonBuilder.object;
-import static utils.JsonBuilder.array;
+import utils.MethodNameCollector;
 
 public class GeneratorService {
 
@@ -70,10 +49,6 @@ public class GeneratorService {
 	private Template template;
 	private Map<String, Map<String, ClazzPojo>> configModel = new HashMap<String, Map<String, ClazzPojo>>();
 
-	/*
-	 * private List<String> fieldNames = new ArrayList<String>(); private
-	 * List<String> importClassList = new ArrayList<String>();
-	 */
 	private GeneratorService() {
 		init();
 	}
@@ -104,7 +79,7 @@ public class GeneratorService {
 		return engine;
 	}
 
-	public GeneratorService buildData(ClassConfiguration superClass) {
+	public GeneratorService buildData(ClassConfiguration superClass) throws FileNotFoundException {
 
 		Map<String, ClazzPojo> dataModel = new HashMap<String, ClazzPojo>();
 
@@ -114,14 +89,25 @@ public class GeneratorService {
 		return engine;
 	}
 
-	private void bindWithPOJO(ClassConfiguration configClass, Map<String, ClazzPojo> dataModel) {
+	private void bindWithPOJO(ClassConfiguration configClass, Map<String, ClazzPojo> dataModel) throws FileNotFoundException {
 
 		for (Object actuelClass : configClass.getClazz()) {
 
 			ClazzPojo clazzPojo = new ClazzPojo();
 			String className = actuelClass.getClass().getSimpleName();
 			String packageName = actuelClass.getClass().getPackage().getName();
-
+						
+			/*
+			 * ObjectMapper mapper = new ObjectMapper(); try { mapper.writeValue(new
+			 * File(GENERATED+"myfile.json"), actuelClass);
+			 * 
+			 * } catch (IOException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); }
+			 */
+			
+			 Path path = Path.of(packageName, className);
+			System.out.println(path);
+		
 			clazzPojo.setPackageName(packageName);
 			clazzPojo.setImportStatments(importLibraryNodes(actuelClass.getClass()).getImportStatments());
 			clazzPojo.setClassName(className);
@@ -130,11 +116,10 @@ public class GeneratorService {
 			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
 			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
 			clazzPojo.setPojoMethods(methodsPojoNode(actuelClass.getClass()).getPojoMethods());
-
+			
 			dataModel.put("clazzPojo", clazzPojo);
 			configModel.put(actuelClass.getClass().getSimpleName(), dataModel);
 			dataModel = new HashMap<String, ClazzPojo>();
-
 		}
 	}
 
@@ -336,7 +321,7 @@ public class GeneratorService {
 		return clazzPojo;
 	}
 
-	private ClazzPojo methodsPojoNode(Class<?> clazz) {
+	private ClazzPojo methodsPojoNode(Class<?> clazz) throws FileNotFoundException {
 
 		ClazzPojo clazzPojo = new ClazzPojo();
 		List<PojoMethod> pojoMethods = new ArrayList<>();
@@ -346,10 +331,12 @@ public class GeneratorService {
 		}
 		clazzPojo.setNoMethods(false);
 
+		
 		for (Method actualMethod : getMethods(clazz)) {
-
+								
 			if (!isGetter(actualMethod) && !isSetter(actualMethod)) {
 				PojoMethod method = new PojoMethod();
+				
 				String modifier = Modifier.toString(actualMethod.getModifiers());
 				String methodName = actualMethod.getName();
 				String returnType = actualMethod.getReturnType().getSimpleName();
@@ -357,7 +344,12 @@ public class GeneratorService {
 				method.setModifier(modifier);
 				method.setMethodName(methodName);
 				method.setReturnType(returnType);
-
+				
+				String FILE_PATH = "src/Ue1/";
+				VoidVisitor<List<String>> visitor = new MethodNameCollector();
+				CompilationUnit cu = StaticJavaParser.parse(new File(FILE_PATH+clazz.getSimpleName()+".java"));
+				visitor.visit(cu, new ArrayList<String>());
+				
 				if (actualMethod.isVarArgs()) {
 
 					method.setNoArgs(true);

@@ -1,6 +1,7 @@
 package Ue2;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +48,14 @@ public class TestPizzaPronto_U2 {
 		ClassConfiguration classConfiguration = new ClassConfiguration(availableClasses);
 		
 		
-		GeneratorService.getGenerator()
-						.buildData(classConfiguration)
-						.writeFile();
+		try {
+			GeneratorService.getGenerator()
+							.buildData(classConfiguration)
+							.writeFile();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static void print(Pronto msg) {
