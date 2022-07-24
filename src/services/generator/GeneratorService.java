@@ -96,18 +96,10 @@ public class GeneratorService {
 			ClazzPojo clazzPojo = new ClazzPojo();
 			String className = actuelClass.getClass().getSimpleName();
 			String packageName = actuelClass.getClass().getPackage().getName();
-						
-			/*
-			 * ObjectMapper mapper = new ObjectMapper(); try { mapper.writeValue(new
-			 * File(GENERATED+"myfile.json"), actuelClass);
-			 * 
-			 * } catch (IOException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); }
-			 */
-			
-			 Path path = Path.of(packageName, className);
+
+			Path path = Path.of(packageName, className);
 			System.out.println(path);
-		
+
 			clazzPojo.setPackageName(packageName);
 			clazzPojo.setImportStatments(importLibraryNodes(actuelClass.getClass()).getImportStatments());
 			clazzPojo.setClassName(className);
@@ -116,7 +108,7 @@ public class GeneratorService {
 			clazzPojo.setGetters(gettersPojoNodes(actuelClass.getClass()).getGetters());
 			clazzPojo.setSetters(settersPojoNodes(actuelClass.getClass()).getSetters());
 			clazzPojo.setPojoMethods(methodsPojoNode(actuelClass.getClass()).getPojoMethods());
-			
+
 			dataModel.put("clazzPojo", clazzPojo);
 			configModel.put(actuelClass.getClass().getSimpleName(), dataModel);
 			dataModel = new HashMap<String, ClazzPojo>();
@@ -331,12 +323,12 @@ public class GeneratorService {
 		}
 		clazzPojo.setNoMethods(false);
 
-		
+
 		for (Method actualMethod : getMethods(clazz)) {
-								
+
 			if (!isGetter(actualMethod) && !isSetter(actualMethod)) {
 				PojoMethod method = new PojoMethod();
-				
+
 				String modifier = Modifier.toString(actualMethod.getModifiers());
 				String methodName = actualMethod.getName();
 				String returnType = actualMethod.getReturnType().getSimpleName();
@@ -344,12 +336,12 @@ public class GeneratorService {
 				method.setModifier(modifier);
 				method.setMethodName(methodName);
 				method.setReturnType(returnType);
-				
+
 				String FILE_PATH = "src/Ue1/";
 				VoidVisitor<List<String>> visitor = new MethodNameCollector();
 				CompilationUnit cu = StaticJavaParser.parse(new File(FILE_PATH+clazz.getSimpleName()+".java"));
 				visitor.visit(cu, new ArrayList<String>());
-				
+
 				if (actualMethod.isVarArgs()) {
 
 					method.setNoArgs(true);
